@@ -1,3 +1,4 @@
+#!/usr/bin/env python -B -tt
 # Apple Stock
 # 
 # I have an array stockPricesYesterday where:
@@ -17,6 +18,20 @@ def profit(stock_prices):
     max_profit = 0
     for i in xrange(n - 1):                                     # O(n)
         buy_price = stock_prices[i]
-        sell_price = max(stock_prices[i + 1:])                  # O(n log n) ?
+        sell_price = max(stock_prices[i + 1:])                  # O(n) worst 
         max_profit = max([sell_price - buy_price, max_profit])
+    print max_profit
     return max_profit
+
+def test(stock_prices=[]):
+    if not stock_prices:
+        stock_prices = raw_input() # command line pipe stdin
+        if stock_prices.find(",") == -1:
+            stock_prices = eval(",".join(stock_prices.split()))
+        else:
+            stock_prices = eval(stock_prices)
+    profit(stock_prices)
+
+
+if __name__ == "__main__":
+    test(stock_prices=[5, 2, 4, 3, 2])
