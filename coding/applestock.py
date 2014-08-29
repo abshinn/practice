@@ -1,4 +1,4 @@
-#!/usr/bin/env python -B -tt
+#!/usr/bin/env python2.7 -B -tt
 # Apple Stock
 # 
 # I have an array stockPricesYesterday where:
@@ -18,8 +18,8 @@ def profit(stock_prices):
     max_profit = 0
     for i in xrange(n - 1):                                     # O(n)
         buy_price = stock_prices[i]
-        sell_price = max(stock_prices[i + 1:])                  # O(n) worst 
-        max_profit = max([sell_price - buy_price, max_profit])
+        sell_price = max(stock_prices[i + 1:])                  # O(n)
+        max_profit = max([sell_price - buy_price, max_profit])  # O(2)
     print max_profit
     return max_profit
 
