@@ -12,19 +12,22 @@ def closure(input_string):
     OUTPUT: boolean
     """
     start = "<{[("
-    end = ")]}>"
+    end =   ">}])"
 
-    open_items = []
     input_list = list(input_string)
     for char in input_string:
         if char in start:
-            open_items.append(char)
-        if char in end and char in open_items:    
-            input_list.remove(char)
-            open_items.remove(char)
-
-    
+            endchar = end[start.index(char)]
+            if endchar in input_list:
+                input_list.remove(char)
+                input_list.remove(endchar)
+    if input_list:
+        return False
+    else:
+        return True
 
 
 if __name__ == "__main__":
-    closure([])
+    test = ["[]", "<{[]}>", "[]([])", "<[]<()", "[(])", "{}}"]
+    for item in test:
+        print closure(item)
