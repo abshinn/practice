@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.7 -B -tt
 """ UCI Adult Dataset (1994 Census)
+    https://archive.ics.uci.edu/ml/datasets/Adult
 
         features: 14
         examples: 48842
