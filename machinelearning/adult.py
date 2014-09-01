@@ -10,19 +10,20 @@
 import os
 import numpy as np
 import pandas as pd
+import pdb
 
 from sklearn.cross_validation import train_test_split
+from sklearn.cross_validation import cross_val_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import classification_report
 
-# model selection
-from sklearn.linear_model import Ridge
-from sklearn.linear_model import LinearRegression
-
 from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.naive_bayes import MultinomialNB
 
-# feature importance
 from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 
 def download_data():
@@ -56,8 +57,10 @@ def binarize_df(dframe):
 
 class FiftyK(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, estimator):
+        self.data, self.label = self.data_prep()
+        self.estimator = estimator
+
 
     def data_prep(self):
         names = ["age", "workclass", "fnlwgt", "education", "education-num", "marital-status",
@@ -70,27 +73,33 @@ class FiftyK(object):
         datadf = pd.read_csv("DATA/adult/adult.csv", header = None, na_values = ['?'], names = names)
 
         data = binarize_df(datadf.dropna())
-        self.label = data[">50K"]
+        label = data[">50K"]
         del data[">50K"]
         del data["<=50K"]
-        del data["fnlwgt"]
-        self.data = data
+#         del data["fnlwgt"]
+        return data, label
 
 
     def train(self):
-        print self.label.value_counts()
-
-        clf = LogisticRegression()
-        X = self.data.values
+        X = self.data.values.astype(np.float)
         y = self.label.values
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-        clf.fit(X_train, y_train)
+        self.estimator.fit(X_train, y_train)
 
-        y_pred = clf.predict(X_test)
+        y_pred = self.estimator.predict(X_test)
+        print classification_report(y_test, y_pred, target_names=["<50k", ">50k"])
 
-        print classification_report(y_test, y_pred, target_names=None)
+        y_score = self.estimator.predict_proba(X_test)
+        print "roc: {}".format( roc_auc_score(y_test, y_score[:,1]) )
+
+
+    def cv(self):
+        X = self.data.values
+        y = self.label.values
+
+        print cross_val_score(self.estimator, X, y, scoring="roc_auc", cv=3)
 
 
     def importance(self):
@@ -102,8 +111,11 @@ class FiftyK(object):
             print "[{:.5f}] {}".format(imp, col)
 
 
+
 if __name__ == "__main__":
-    fifty = FiftyK()
+    estimator = RandomForestClassifier(n_estimators=50)
+    fifty = FiftyK(estimator)
     fifty.data_prep()
 #     fifty.importance()
     fifty.train()
+#     fifty.cv()
