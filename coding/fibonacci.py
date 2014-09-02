@@ -16,6 +16,14 @@ def fibonacci(index):
     return current
 
 
+def fib_recursive(index):
+    if index <= 1:
+        return index
+    previous = fib_recursive(index - 2)
+    current = fib_recursive(index - 1)
+    return current + previous
+
+
 if __name__ == "__main__":
     for x in xrange(12):
-        print fibonacci(x)
+        print fib_recursive(x)
