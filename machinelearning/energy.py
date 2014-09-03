@@ -1,10 +1,12 @@
 #!/usr/bin/env python2.7 -B -tt
 """ Electrical Energy Output
+http://archive.ics.uci.edu/ml/datasets/Combined+Cycle+Power+Plant
 
-        features: 4 (Temp, Ambient Pressure, Relative Humidity, Exhaust Vacuum), predict on Energy Output
-        examples: 9568 over 6 years
-    feature type: float
-            task: predict net hourly electrical energy output
+    features: 4 (Temp, Ambient Pressure, Relative Humidity, Exhaust Vacuum), predict on Energy Output
+    examples: 9568 over 6 years
+feature type: float
+        task: predict net hourly electrical energy output
+
 """
 
 import os
