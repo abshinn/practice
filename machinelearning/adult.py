@@ -15,6 +15,7 @@ import pdb
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+sns.axes_style("darkgrid")
 
 from sklearn.cross_validation import train_test_split
 from sklearn.cross_validation import cross_val_score
@@ -33,6 +34,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 def download_data():
     """fetch data with wget"""
+
     baseurl = "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult"
     os.system("mkdir -p DATA/adult/")
     os.system("wget {} -P DATA/adult/".format(baseurl + ".names"))
@@ -47,6 +49,7 @@ def download_data():
 
 def binarize_df(dframe):
     """binarize a pandas series of categorical strings into a sparse dataframe"""
+
     dfout = pd.DataFrame()
     for column in dframe.columns:
         col_dtype = dframe[column].dtype
@@ -63,12 +66,13 @@ def binarize_df(dframe):
 
 class FiftyK(object):
 
-    def __init__(self, estimator):
-        self.data, self.label = self.data_prep()
+    def __init__(self, estimator, binarize=True):
+        self.data, self.label = self.prepare(binarize=binarize)
         self.estimator = estimator
 
 
-    def data_prep(self):
+    def prepare(self, binarize=True):
+
         names = ["age", "workclass", "fnlwgt", "education", "education-num", "marital-status",
                  "occupation", "relationship", "race", "sex", "capital-gain", "capital-loss", 
                  "hours-per-week", "native-country", "label"]
@@ -78,16 +82,27 @@ class FiftyK(object):
 
         datadf = pd.read_csv("DATA/adult/adult.csv", header = None, na_values = ['?'], names = names)
 
-        data = binarize_df(datadf.dropna())
-        label = data[">50K"]
-        del data[">50K"]
-        del data["<=50K"]
-        del data["fnlwgt"]
+        del datadf["fnlwgt"]
+        del datadf["workclass"]
+        del datadf["native-country"]
+        del datadf["race"]
+
+        if binarize:
+            data = binarize_df(datadf.dropna())
+            label = data.pop(">50K")
+            del data["<=50K"]
+        else:
+            data = datadf.dropna()
+            label = data.pop("label")
+            label = pd.Series(label == ">50K")
+
         return data, label
 
 
     def train(self, n_examples=None):
-        X = self.data.values.astype(np.float)
+
+        X = self.data.values.astype(np.float32)
+
         y = self.label.values
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -102,14 +117,16 @@ class FiftyK(object):
 
 
     def cv(self):
+
         X = self.data.values.astype(np.float)
         y = self.label.values
 
         print cross_val_score(self.estimator, X, y, scoring="roc_auc", cv=3)
 
 
-    def experience_curve(self, train_sizes=None, cv=4):
-        X = self.data.values.astype(np.float)
+    def experience_curve(self, train_sizes=None, cv=3, ylim=None):
+
+        X = self.data.values.astype(np.float32)
         y = self.label.values
 
         if not train_sizes:
@@ -117,8 +134,8 @@ class FiftyK(object):
 
         plt.figure()
         plt.title(">50K learning curve")
-#         if ylim is not None:
-#             plt.ylim(*ylim)
+        if ylim is not None:
+            plt.ylim(*ylim)
         plt.xlabel("Training examples")
         plt.ylabel("Score")
         train_sizes, train_scores, test_scores = learning_curve(
@@ -128,7 +145,6 @@ class FiftyK(object):
         train_scores_std = np.std(train_scores, axis=1)
         test_scores_mean = np.mean(test_scores, axis=1)
         test_scores_std = np.std(test_scores, axis=1)
-        plt.grid()
 
         plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
                          train_scores_mean + train_scores_std, alpha=0.1,
@@ -156,11 +172,8 @@ class FiftyK(object):
 
 
 if __name__ == "__main__":
-    estimator = DecisionTreeClassifier()
+    estimator = DecisionTreeClassifier(max_depth=10)
     fifty = FiftyK(estimator)
-    fifty.data_prep()
-#     fifty.importance()
     fifty.train()
-#     fifty.cv()
-#     plt = fifty.experience_curve()
-#     plt.show()
+    plt = fifty.experience_curve()
+    plt.show()
