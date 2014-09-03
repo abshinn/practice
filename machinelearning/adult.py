@@ -13,10 +13,14 @@ import numpy as np
 import pandas as pd
 import pdb
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 from sklearn.cross_validation import train_test_split
 from sklearn.cross_validation import cross_val_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import classification_report
+from sklearn.learning_curve import learning_curve
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import BernoulliNB
@@ -36,8 +40,9 @@ def download_data():
     os.system("wget {} -P DATA/adult/".format(baseurl + ".test"))
 
     # remove spaces after comma for pandas convenience
-    os.system("cat DATA/adult/adult.data | sed 's/, /,/g' > DATA/adult/adult.csv")
-    os.system("cat DATA/adult/adult.test | sed 's/, /,/g' > DATA/adult/test.csv")
+    os.system("cat DATA/adult/adult.data DATA/adult/adult.test > DATA/adult/adult.all")
+    os.system("cat DATA/adult/adult.all | sed 's/, /,/g' > DATA/adult/adult.tmp")
+    os.system("cat DATA/adult/adult.tmp | sed 's/K\./K/g' > DATA/adult/adult.csv")
 
 
 def binarize_df(dframe):
@@ -77,11 +82,11 @@ class FiftyK(object):
         label = data[">50K"]
         del data[">50K"]
         del data["<=50K"]
-#         del data["fnlwgt"]
+        del data["fnlwgt"]
         return data, label
 
 
-    def train(self):
+    def train(self, n_examples=None):
         X = self.data.values.astype(np.float)
         y = self.label.values
 
@@ -90,17 +95,54 @@ class FiftyK(object):
         self.estimator.fit(X_train, y_train)
 
         y_pred = self.estimator.predict(X_test)
-        print classification_report(y_test, y_pred, target_names=["<50k", ">50k"])
+        print classification_report(y_test, y_pred, target_names=["<=50k", ">50k"])
 
         y_score = self.estimator.predict_proba(X_test)
         print "roc: {}".format( roc_auc_score(y_test, y_score[:,1]) )
 
 
     def cv(self):
-        X = self.data.values
+        X = self.data.values.astype(np.float)
         y = self.label.values
 
         print cross_val_score(self.estimator, X, y, scoring="roc_auc", cv=3)
+
+
+    def experience_curve(self, train_sizes=None, cv=4):
+        X = self.data.values.astype(np.float)
+        y = self.label.values
+
+        if not train_sizes:
+            train_sizes = np.linspace(.1, 1.0, 10)
+
+        plt.figure()
+        plt.title(">50K learning curve")
+#         if ylim is not None:
+#             plt.ylim(*ylim)
+        plt.xlabel("Training examples")
+        plt.ylabel("Score")
+        train_sizes, train_scores, test_scores = learning_curve(
+            self.estimator, X, y, cv=cv, n_jobs=-1, train_sizes=train_sizes, scoring="roc_auc")
+
+        train_scores_mean = np.mean(train_scores, axis=1)
+        train_scores_std = np.std(train_scores, axis=1)
+        test_scores_mean = np.mean(test_scores, axis=1)
+        test_scores_std = np.std(test_scores, axis=1)
+        plt.grid()
+
+        plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
+                         train_scores_mean + train_scores_std, alpha=0.1,
+                         color="r")
+        plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
+                         test_scores_mean + test_scores_std, alpha=0.1, color="g")
+        plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
+                 label="Training score")
+        plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
+                 label="Cross-validation score")
+
+        plt.legend(loc="best")
+
+        return plt
 
 
     def importance(self):
@@ -108,15 +150,17 @@ class FiftyK(object):
         y = self.label.values
         X = self.data.values
         clf.fit(X, y)
-        for imp, col in sorted(zip(clf.feature_importances_, self.data.columns), key = lambda (imp, col): imp, reverse = True):
+        for imp, col in sorted(zip(clf.feature_importances_, self.data.columns), key = lambda (imp, col): imp, reverse=True):
             print "[{:.5f}] {}".format(imp, col)
 
 
 
 if __name__ == "__main__":
-    estimator = RandomForestClassifier(n_estimators=50)
+    estimator = DecisionTreeClassifier()
     fifty = FiftyK(estimator)
     fifty.data_prep()
 #     fifty.importance()
     fifty.train()
 #     fifty.cv()
+#     plt = fifty.experience_curve()
+#     plt.show()
