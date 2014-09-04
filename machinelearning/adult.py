@@ -175,5 +175,5 @@ if __name__ == "__main__":
     estimator = DecisionTreeClassifier(max_depth=10)
     fifty = FiftyK(estimator)
     fifty.train()
-    plt = fifty.experience_curve()
-    plt.show()
+    fifty.experience_curve().show()
+
