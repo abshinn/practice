@@ -22,6 +22,7 @@ from sklearn.cross_validation import cross_val_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import classification_report
 from sklearn.learning_curve import learning_curve
+from sklearn.grid_search import GridSearchCV
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import BernoulliNB
@@ -116,12 +117,26 @@ class FiftyK(object):
         print "roc: {}".format( roc_auc_score(y_test, y_score[:,1]) )
 
 
-    def cv(self):
+    def cv(self, parameters):
 
         X = self.data.values.astype(np.float)
         y = self.label.values
 
         print cross_val_score(self.estimator, X, y, scoring="roc_auc", cv=3)
+
+
+    def grid_search(self, param_grid, scoring=None, cv=3):
+
+        X = self.data.values.astype(np.float)
+        y = self.label.values
+
+        grid_clf = GridSearchCV(self.estimator, param_grid, scoring=scoring, cv=cv, n_jobs=-1)
+        grid_clf.fit(X, y)
+
+        print grid_clf.best_params_
+        print grid_clf.best_score_
+
+        self.estimator = grid_clf.best_estimator_
 
 
     def experience_curve(self, train_sizes=None, cv=3, ylim=None):
@@ -172,8 +187,17 @@ class FiftyK(object):
 
 
 if __name__ == "__main__":
-    estimator = DecisionTreeClassifier(max_depth=10)
+    estimator = DecisionTreeClassifier()
     fifty = FiftyK(estimator)
+
+    parameters = {"max_features":(.1, .2, .3, "sqrt", "log2"),
+                  "max_depth":(5, 8, 10, 12, 14, 16),
+                  "min_samples_split":(2 ,3, 4),
+                  "min_samples_leaf":(1, 2, 3),
+                 }
+
+    fifty.grid_search(param_grid=parameters, scoring=None, cv=5)
+
     fifty.train()
     fifty.experience_curve().show()
 
