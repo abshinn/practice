@@ -2,13 +2,16 @@
 """
 Closure
 
-Write a function which takes a list of strings, return True if "<{[()]}>" are closed within
-the string, False if otherwise.
+Write a function which takes a list of strings, return True if "<{[()]}>" are closed within the string,
+False if otherwise.
 """
 
-def closure(string):
+def simple_closure(string):
     """
-    INPUT: string
+    Detect if enclosure items have their compliment present. Return True if closed, False if otherwise.
+    This method would return True for linked items, e.g., "([)]".
+
+    INPUT: str
     OUTPUT: boolean
     """
     start = "<{[("
@@ -27,7 +30,39 @@ def closure(string):
         return True
 
 
+def code_closure(in_string):
+    """
+    Detect if enclosure items within a given string are closed, coding rules apply, e.g., "([)]" would
+    return False.
+
+    INPUT: str
+    OUTPUT: boolean
+    """
+    if in_string == "":
+        return True
+
+    start = "<{[("
+    end =   ">}])"
+
+    i = 0
+    while i < len(in_string): 
+        if in_string[i] in start:
+            endchar = end[start.index(in_string[i])]
+
+            endchar_pos = in_string[i:].find(endchar)
+
+            if endchar_pos == -1:
+                return False
+            else:
+                if code_closure(in_string[i+1:endchar_pos]) and code_closure(in_string[endchar_pos+1:]):
+                    return True
+                else:
+                    return False
+        else:
+            i += 1
+
+
 if __name__ == "__main__":
     test = ["[]", "<{[]}>", "[]([])", "<[]<()", "[(])", "{}}"]
     for item in test:
-        print closure(item)
+        print code_closure(item)
