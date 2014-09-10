@@ -1,29 +1,64 @@
 #!/usr/bin/env python2.7 -B -tt
 """
-Fibonacci
-0, 1, 1, 2, 3, 5, 8, 13, 21...
+fibonacci coding problems
 
-Write a function which takes an integer index and returns the corresponding integer in the fibonacci sequence.
+sequence:
+0, 1, 1, 2, 3, 5, 8, 13, 21, 34...
 """
 
 def fibonacci(index):
-    if index <= 1:
+    """
+    Write a function which takes an integer index and returns the corresponding integer in the fibonacci sequence.
+
+    INPUT: integer
+    OUTPUT: integer
+    """
+    if index < 2:
         return index
-    previous = 0
-    current = 1
+    current, previous = 1, 0
     for _ in xrange(index - 1):
         current, previous = current + previous, current
     return current
 
 
 def fib_recursive(index):
-    if index <= 1:
+    """
+    Write a recursive function which takes an integer index and returns the corresponding integer in the fibonacci sequence.
+
+    INPUT: integer
+    OUTPUT: integer
+    """
+    if index < 2:
         return index
     previous = fib_recursive(index - 2)
     current = fib_recursive(index - 1)
     return current + previous
 
 
+def fib_even(n):
+    """
+    Generate even fibonacci numbers less than n.
+
+    INPUT: integer
+    OUTPUT: integer generator
+    """
+    current, previous = 1, 0
+    while current < n:
+        current, previous = current + previous, current
+        if current % 2 == 0:
+            yield current
+
+
 if __name__ == "__main__":
-    for x in xrange(12):
-        print fib_recursive(x)
+    # test sequence functions
+    for fib in [fibonacci, fib_recursive]:
+        fib_list = []
+        for x in xrange(13):
+            fib_list.append( fib(x) )
+        print fib_list
+
+    # test generator 
+    for x in fib_even(10):
+        print x
+    print sum( fib_even(4000000) )
+
