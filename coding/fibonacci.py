@@ -21,6 +21,21 @@ def fibonacci(index):
     return current
 
 
+def fib_generator(index):
+    """
+    Generate the fibonacci squence up to index i.
+
+    INPUT: integer
+    OUTPUT: integer generator
+    """
+    current, previous = 1, 0
+    i = 0
+    while i < index: 
+        yield previous
+        current, previous = current + previous, current
+        i += 1
+
+
 def fib_recursive(index):
     """
     Write a recursive function which takes an integer index and returns the corresponding integer in the fibonacci sequence.
@@ -35,15 +50,15 @@ def fib_recursive(index):
     return current + previous
 
 
-def fib_even(n):
+def fib_even(x):
     """
-    Generate even fibonacci numbers less than n.
+    Generate even fibonacci numbers less than or equal to x.
 
     INPUT: integer
     OUTPUT: integer generator
     """
     current, previous = 1, 0
-    while current < n:
+    while current < x:
         current, previous = current + previous, current
         if current % 2 == 0:
             yield current
@@ -51,14 +66,11 @@ def fib_even(n):
 
 if __name__ == "__main__":
     # test sequence functions
-    for fib in [fibonacci, fib_recursive]:
-        fib_list = []
-        for x in xrange(13):
-            fib_list.append( fib(x) )
-        print fib_list
+    print "        brute: {}".format( [fib_recursive(index) for index in xrange(13)] )
+    print "    recursive: {}".format( [    fibonacci(index) for index in xrange(13)] )
 
     # test generator 
-    for x in fib_even(10):
-        print x
-    print sum( fib_even(4000000) )
+    print "fib_generator: {}".format( [x for x in fib_generator(13)] )
+    print "         even: {}".format( [x for x in fib_even(144)] )
+    print "sum even < 4M: {}".format( sum(fib_even(4000000)) ) 
 
