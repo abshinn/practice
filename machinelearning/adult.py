@@ -117,12 +117,12 @@ class FiftyK(object):
         print "roc: {}".format( roc_auc_score(y_test, y_score[:,1]) )
 
 
-    def cv(self, parameters):
+    def cv(self, parameters, scoring="roc_auc"):
 
         X = self.data.values.astype(np.float)
         y = self.label.values
 
-        print cross_val_score(self.estimator, X, y, scoring="roc_auc", cv=3)
+        print cross_val_score(self.estimator, X, y, scoring=scoring, cv=3)
 
 
     def grid_search(self, param_grid, scoring=None, cv=3):
@@ -139,7 +139,7 @@ class FiftyK(object):
         self.estimator = grid_clf.best_estimator_
 
 
-    def experience_curve(self, train_sizes=None, cv=3, ylim=None):
+    def experience_curve(self, train_sizes=None, cv=3, ylim=None, scoring="roc_auc"):
 
         X = self.data.values.astype(np.float32)
         y = self.label.values
@@ -154,7 +154,7 @@ class FiftyK(object):
         plt.xlabel("Training examples")
         plt.ylabel("Score")
         train_sizes, train_scores, test_scores = learning_curve(
-            self.estimator, X, y, cv=cv, n_jobs=-1, train_sizes=train_sizes, scoring="roc_auc")
+            self.estimator, X, y, cv=cv, n_jobs=-1, train_sizes=train_sizes, scoring=scoring)
 
         train_scores_mean = np.mean(train_scores, axis=1)
         train_scores_std = np.std(train_scores, axis=1)
