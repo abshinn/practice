@@ -61,6 +61,13 @@ def code_closure(in_string):
         else:
             i += 1
 
+def test_code_closure():
+    assert code_closure("[{}]<>") == True
+    assert code_closure("{}()<[]>") == True
+    assert code_closure("<>{(})<[]>") == False
+    assert code_closure("<{<[]>}") == False
+    assert code_closure("((())))") == False
+
 
 if __name__ == "__main__":
     test = ["[]", "<{[]}>", "[]([])", "<[]<()", "[(])", "{}}"]
