@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+echo Testing fibonacci.py
+nosetests --no-byte-compile fibonacci.py
+echo
+echo
+
+echo Testing closure.py
+nosetests --no-byte-compile closure.py
+echo 
+echo
