@@ -185,8 +185,7 @@ class FiftyK(object):
             print "[{:.5f}] {}".format(imp, col)
 
 
-
-if __name__ == "__main__":
+def tree_grid_search():
     estimator = DecisionTreeClassifier()
     fifty = FiftyK(estimator)
 
@@ -200,4 +199,16 @@ if __name__ == "__main__":
 
     fifty.train()
     fifty.experience_curve().show()
+
+
+
+if __name__ == "__main__":
+    seed = np.random.randint(2**32)
+
+    print "seed: {}".format(seed)
+    estimator = DecisionTreeClassifier(max_features=0.3, min_samples_split=4, max_depth=10, min_samples_leaf=3, random_state=seed)
+
+    fifty = FiftyK(estimator)
+    fifty.train()
+    fifty.experience_curve(ylim=(.7,1)).show()
 
