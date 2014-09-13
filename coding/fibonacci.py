@@ -6,7 +6,7 @@ sequence:
 0, 1, 1, 2, 3, 5, 8, 13, 21, 34...
 """
 
-def fibonacci(index):
+def fib(index):
     """
     Write a function which takes an integer index and returns the corresponding integer in the fibonacci sequence.
 
@@ -19,6 +19,13 @@ def fibonacci(index):
     for _ in xrange(index - 1):
         current, previous = current + previous, current
     return current
+
+def test_fib():
+    assert fib(0) == 0
+    assert fib(1) == 1
+    assert fib(2) == 1
+    assert fib(8) == 21
+    assert fib(10) == 55
 
 
 def fib_generator(index):
@@ -35,6 +42,12 @@ def fib_generator(index):
         current, previous = current + previous, current
         i += 1
 
+def test_fib_generator():
+    fibs = [fib for fib in fib_generator(10)]
+    assert fibs[0] == 0
+    assert fibs[3] == 2
+    assert fibs[-1] == 34
+
 
 def fib_recursive(index):
     """
@@ -48,6 +61,13 @@ def fib_recursive(index):
     previous = fib_recursive(index - 2)
     current = fib_recursive(index - 1)
     return current + previous
+
+def test_fib_recursive():
+    assert fib_recursive(0) == 0
+    assert fib_recursive(1) == 1
+    assert fib_recursive(2) == 1
+    assert fib_recursive(8) == 21
+    assert fib_recursive(10) == 55
 
 
 def fib_even(x):
@@ -67,7 +87,7 @@ def fib_even(x):
 if __name__ == "__main__":
     # test sequence functions
     print "        brute: {}".format( [fib_recursive(index) for index in xrange(13)] )
-    print "    recursive: {}".format( [    fibonacci(index) for index in xrange(13)] )
+    print "    recursive: {}".format( [          fib(index) for index in xrange(13)] )
 
     # test generator 
     print "fib_generator: {}".format( [x for x in fib_generator(13)] )
