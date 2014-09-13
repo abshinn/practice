@@ -9,3 +9,8 @@ echo Testing closure.py
 nosetests --no-byte-compile closure.py
 echo 
 echo
+
+echo Testing pascal.py
+nosetests --no-byte-compile pascal.py
+echo 
+echo

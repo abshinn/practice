@@ -17,6 +17,12 @@ def pascal(ind):
            p.append(p_a[i] + p_b[i])
     return p
 
+def test_pascal():
+    assert pascal(0) == [1]
+    assert pascal(5) == [1, 5, 10, 10, 5, 1]
+    assert pascal(10) == [1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1]
+
+
 if __name__ == "__main__":
     ind = int(raw_input())
-    print pascal_brute(ind)
+    print pascal(ind)
