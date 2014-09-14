@@ -26,6 +26,7 @@ def test_fib():
     assert fib(2) == 1
     assert fib(8) == 21
     assert fib(10) == 55
+    print "fib OK"
 
 
 def fib_generator(index):
@@ -47,6 +48,7 @@ def test_fib_generator():
     assert fibs[0] == 0
     assert fibs[3] == 2
     assert fibs[-1] == 34
+    print "fib_generator OK"
 
 
 def fib_recursive(index):
@@ -68,6 +70,7 @@ def test_fib_recursive():
     assert fib_recursive(2) == 1
     assert fib_recursive(8) == 21
     assert fib_recursive(10) == 55
+    print "fib_recursive OK"
 
 
 def fib_even(x):
@@ -84,12 +87,25 @@ def fib_even(x):
             yield current
 
 
+def test_fib_even():
+    even_fibs = [even_fib for even_fib in fib_even(144)]
+    assert even_fibs[0] == 2
+    assert even_fibs[3] == 144
+    print "fib_even OK"
+
+
 if __name__ == "__main__":
-    # test sequence functions
+    test_fib()
+    test_fib_recursive()
+    test_fib_generator()
+    test_fib_even()
+
+
+    # sequence functions
     print "        brute: {}".format( [fib_recursive(index) for index in xrange(13)] )
     print "    recursive: {}".format( [          fib(index) for index in xrange(13)] )
 
-    # test generator 
+    # generators 
     print "fib_generator: {}".format( [x for x in fib_generator(13)] )
     print "         even: {}".format( [x for x in fib_even(144)] )
     print "sum even < 4M: {}".format( sum(fib_even(4000000)) ) 
