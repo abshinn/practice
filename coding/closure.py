@@ -67,9 +67,12 @@ def test_code_closure():
     assert code_closure("<>{(})<[]>") == False
     assert code_closure("<{<[]>}") == False
     assert code_closure("((())))") == False
+    print "clode_closure OK"
 
 
 if __name__ == "__main__":
+    test_code_closure()
+
     test = ["[]", "<{[]}>", "[]([])", "<[]<()", "[(])", "{}}"]
     for item in test:
         print code_closure(item)
