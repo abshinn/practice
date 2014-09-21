@@ -22,9 +22,9 @@ def fizzbuzz(start = 1, end = 100):
         if i % 3 == 0: output += "Fizz"
         if i % 5 == 0: output += "Buzz"
         if output:
-            print output
+            print output,
         else:
-            print i
+            print i,
 
 
 if __name__ == "__main__":
