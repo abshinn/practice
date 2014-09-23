@@ -1,10 +1,6 @@
 practice
 ========
 
-### Coding problems
+### [Coding Problems](https://github.com/abshinn/practice/tree/master/coding)
 
-`coding/` -- practice coding problems
-
-### Machine Learning
-
-`machinelearning/` -- machine learning practice with public data sets
+### [Machine Learning](https://github.com/abshinn/practice/tree/master/machinelearning)
