@@ -1,10 +1,9 @@
 #!/usr/bin/env python2.7 -B -tt
-"""
-Implement a linked list
-"""
+""" Linked List Practice. """
 
 import random
 
+        
 class Node(object):
     """Node of a linked list."""
 
@@ -16,16 +15,13 @@ class Node(object):
         return str(self.data)
 
 
-class DoubleNode(object):
+class DoubleNode(Node):
     """Node of a double linked list."""
 
     def __init__(self, data=None, prev=None, next=None):
         self.data = data
         self.prev = prev
         self.next = next
-
-    def __str__(self):
-        return str(self.data)
 
 
 def print_list(node):
@@ -35,6 +31,50 @@ def print_list(node):
         print node,
         node = node.next
     print
+
+
+class LinkedList(object):
+    """Linked List"""
+
+    def __init__(self, nodes=[]):
+        self.nodes = nodes
+        self.head = nodes[0]
+
+    def show(self):
+        print_list(self.head)
+
+
+def split_llist(llist):
+    """Divide a linked list into two."""
+    
+    marker1, marker2 = 0, 0
+
+    node = llist.head
+
+    while node:
+        marker1 += 1
+        marker2 = marker1/2
+        node = node.next
+
+    A_nodes = []
+    node = llist.head
+    for _ in xrange(marker2):
+        A_nodes.append(node)
+        node = node.next
+
+    A_nodes[-1].next = None
+
+    B_nodes = []
+    for _ in xrange(marker2,marker1):
+        B_nodes.append(node)
+        node = node.next
+       
+    return LinkedList(A_nodes), LinkedList(B_nodes)
+
+
+def sort_llist(unsorted_llist):
+    """Sort an unsorted linked list."""
+    pass
 
 
 def remove_duplicates(unsorted_llist):
@@ -47,7 +87,12 @@ def remove_duplicates(unsorted_llist):
 
  
 def generate_random_llist(n_elements=10, range=(0,10)):
-    """Generate a random, unsorted linked list of integers."""
+    """Generate a random, unsorted linked list of integers.
+    
+    INPUT: n_elements -- number of elements in linked list (integer)
+                range -- range of random integers to be node values (tuple of two integers)
+    OUTPUT: tuple: (head Node of linked list, list of nodes)
+    """
 
     llist = [ Node(random.randint(*range)) ]
 
@@ -56,16 +101,23 @@ def generate_random_llist(n_elements=10, range=(0,10)):
         if i < n_elements-1:
             llist[i].next = llist[i+1]
 
-    return llist
+    return LinkedList(llist)
 
 
 if __name__ == "__main__":
     node1, node2, node3 = Node(1), Node(2), Node(3)
     node1.next = node2
     node2.next = node3
-
     print_list(node1)
 
+    llist = generate_random_llist(range=(1,5))
+    print "random list:",
+    llist.show()
+  
+    llistA, llistB = split_llist(llist)
 
-    llist = generate_random_llist()
-    print_list(llist[0])
+    print "A:",
+    llistA.show()
+
+    print "B:",
+    llistB.show()
