@@ -14,6 +14,18 @@ class Node(object):
         return str(self.data)
 
 
+class doubleNode(object):
+    """Node of a double linked list"""
+
+    def __init__(self, data=None, prev=None, next=None):
+        self.data = data
+        self.prev = prev
+        self.next = next
+
+    def __str__(self):
+        return str(self.data)
+
+
 def print_list(node):
     """given first node, print linked list"""
 
