@@ -30,6 +30,14 @@ class LinkedList(object):
     def __init__(self):
         self.head = None
 
+    def length(self):
+        node = self.head
+        l = 0
+        while node:
+            l += 1
+            node = node.next
+        return l
+
     def add(self, node_value):
         if self.head:
             node = self.head
@@ -63,6 +71,24 @@ class LinkedList(object):
            
         return list_A, list_B
 
+    def remove(self, item):
+
+        node = self.head
+        prev = None
+        while node:
+            if node.data == item:
+                if prev == None:
+                    self.head = self.head.next
+                else:
+                    prev.next = node.next
+                    prev, node = prev, node.next
+            else:
+                prev, node = node, node.next
+
+
+    def _swap(self, node):
+        """Swap the position of the given node with the next."""
+        pass
 
     def show(self):
         node = self.head
@@ -72,20 +98,12 @@ class LinkedList(object):
         print
 
 
-def sort_llist(unsorted_llist):
-    """Sort an unsorted linked list."""
-    pass
-
-
 def remove_duplicates(unsorted_llist):
     """
     Cracking the Coding Inverview Problem 2.1, p77:
     
     Remove duplicates from an unsorted linked list.
-
-    pseudo:
-    - sort
-    - remove node if node.data == node.prev.data
+    (using temporary buffer)
     """
     pass
 
@@ -116,7 +134,11 @@ if __name__ == "__main__":
     llist = generate_random_llist(n_elements=11, range=(1,5))
     print "random list:",
     llist.show()
- 
+
+    print "remove 1:",
+    llist.remove(1)
+    llist.show()
+
     print "\nSplit"
     llistA, llistB = llist.split()
 
