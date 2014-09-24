@@ -34,10 +34,10 @@ def print_list(node):
 
 
 class LinkedList(object):
-    """Linked List"""
+    """Linked List."""
 
     def __init__(self, nodes=[]):
-        self.nodes = nodes
+        self._nodes = nodes
         self.head = nodes[0]
 
     def show(self):
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     node2.next = node3
     print_list(node1)
 
-    llist = generate_random_llist(range=(1,5))
+    llist = generate_random_llist(n_elements=11, range=(1,5))
     print "random list:",
     llist.show()
   
