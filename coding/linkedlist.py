@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.7 -B -tt
-""" Linked List Practice. """
+""" Linked list practice problems. """
 
 import random
 
@@ -24,52 +24,52 @@ class DoubleNode(Node):
         self.next = next
 
 
-def print_list(node):
-    """Given first node, print linked list."""
-
-    while node:
-        print node,
-        node = node.next
-    print
-
-
 class LinkedList(object):
     """Linked List."""
 
-    def __init__(self, nodes=[]):
-        self._nodes = nodes
-        self.head = nodes[0]
+    def __init__(self):
+        self.head = None
+
+    def add(self, node_value):
+        if self.head:
+            node = self.head
+            while node.next:
+                node = node.next
+            node.next = Node(node_value)
+        else:
+            self.head = Node(node_value)
+
+    def split(self):
+        """Divide a linked list into two linked lists."""
+        
+        marker_1, marker_2 = 0, 0
+
+        node = self.head
+        while node:
+            marker_1 += 1
+            marker_2 = marker_1/2
+            node = node.next
+
+        node = self.head
+        list_A = LinkedList()
+        for _ in xrange(marker_2):
+            list_A.add(node.data)
+            node = node.next
+
+        list_B = LinkedList()
+        for _ in xrange(marker_2, marker_1):
+            list_B.add(node.data)
+            node = node.next
+           
+        return list_A, list_B
+
 
     def show(self):
-        print_list(self.head)
-
-
-def split_llist(llist):
-    """Divide a linked list into two."""
-    
-    marker1, marker2 = 0, 0
-
-    node = llist.head
-
-    while node:
-        marker1 += 1
-        marker2 = marker1/2
-        node = node.next
-
-    A_nodes = []
-    node = llist.head
-    for _ in xrange(marker2):
-        A_nodes.append(node)
-        node = node.next
-
-    A_nodes[-1].next = None
-
-    B_nodes = []
-    for _ in xrange(marker2,marker1):
-        B_nodes.append(node)
-        node = node.next
-       
-    return LinkedList(A_nodes), LinkedList(B_nodes)
+        node = self.head
+        while node:
+            print node,
+            node = node.next
+        print
 
 
 def sort_llist(unsorted_llist):
@@ -82,6 +82,10 @@ def remove_duplicates(unsorted_llist):
     Cracking the Coding Inverview Problem 2.1, p77:
     
     Remove duplicates from an unsorted linked list.
+
+    pseudo:
+    - sort
+    - remove node if node.data == node.prev.data
     """
     pass
 
@@ -94,27 +98,27 @@ def generate_random_llist(n_elements=10, range=(0,10)):
     OUTPUT: tuple: (head Node of linked list, list of nodes)
     """
 
-    llist = [ Node(random.randint(*range)) ]
+    llist = LinkedList()
 
-    for i in xrange(n_elements-1):
-        llist.append( Node(random.randint(*range)) )
-        if i < n_elements-1:
-            llist[i].next = llist[i+1]
+    for _ in xrange(n_elements):
+        llist.add( random.randint(*range) )
 
-    return LinkedList(llist)
+    return llist
 
 
 if __name__ == "__main__":
-    node1, node2, node3 = Node(1), Node(2), Node(3)
-    node1.next = node2
-    node2.next = node3
-    print_list(node1)
+    test = LinkedList()
+    test.add(1)
+    test.add(2)
+    test.add(3)
+    test.show()
 
     llist = generate_random_llist(n_elements=11, range=(1,5))
     print "random list:",
     llist.show()
-  
-    llistA, llistB = split_llist(llist)
+ 
+    print "\nSplit"
+    llistA, llistB = llist.split()
 
     print "A:",
     llistA.show()
