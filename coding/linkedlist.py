@@ -31,6 +31,8 @@ class LinkedList(object):
         self.head = None
 
     def length(self):
+        """Return the length of the linked list."""
+
         node = self.head
         l = 0
         while node:
@@ -38,14 +40,16 @@ class LinkedList(object):
             node = node.next
         return l
 
-    def add(self, node_value):
+    def add(self, item):
+        """Add item to the end of a linked list."""
+
         if self.head:
             node = self.head
             while node.next:
                 node = node.next
-            node.next = Node(node_value)
+            node.next = Node(item)
         else:
-            self.head = Node(node_value)
+            self.head = Node(item)
 
     def split(self):
         """Divide a linked list into two linked lists."""
@@ -72,6 +76,7 @@ class LinkedList(object):
         return list_A, list_B
 
     def remove(self, item):
+        """Remove first occurence of an item in the linked list."""
 
         node = self.head
         prev = None
@@ -81,16 +86,17 @@ class LinkedList(object):
                     self.head = self.head.next
                 else:
                     prev.next = node.next
-                    prev, node = prev, node.next
+                return 
             else:
                 prev, node = node, node.next
-
 
     def _swap(self, node):
         """Swap the position of the given node with the next."""
         pass
 
     def show(self):
+        """Print linked list."""
+
         node = self.head
         while node:
             print node,
