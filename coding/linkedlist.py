@@ -90,6 +90,22 @@ class LinkedList(object):
             else:
                 prev, node = node, node.next
 
+    def remove_duplicates(self):
+        """
+        Cracking the Coding Inverview Problem 2.1, p77:
+        
+        Remove duplicates from an unsorted linked list.
+        (using temporary buffer)
+        """
+        cache = []
+        node = self.head
+        while node:
+            if node.data in cache:
+                self.remove(node.data)
+            else:
+                cache.append(node.data)
+            node = node.next
+
     def _swap(self, node):
         """Swap the position of the given node with the next."""
         pass
@@ -102,16 +118,6 @@ class LinkedList(object):
             print node,
             node = node.next
         print
-
-
-def remove_duplicates(unsorted_llist):
-    """
-    Cracking the Coding Inverview Problem 2.1, p77:
-    
-    Remove duplicates from an unsorted linked list.
-    (using temporary buffer)
-    """
-    pass
 
  
 def generate_random_llist(n_elements=10, range=(0,10)):
@@ -131,6 +137,7 @@ def generate_random_llist(n_elements=10, range=(0,10)):
 
 
 if __name__ == "__main__":
+    print "basic list:",
     test = LinkedList()
     test.add(1)
     test.add(2)
@@ -138,10 +145,14 @@ if __name__ == "__main__":
     test.show()
 
     llist = generate_random_llist(n_elements=11, range=(1,5))
-    print "random list:",
+    print "\nrandom list:",
     llist.show()
 
-    print "remove 1:",
+    print "\nremove duplicates:",
+    llist.remove_duplicates()
+    llist.show()
+
+    print "\nremove 1:",
     llist.remove(1)
     llist.show()
 
