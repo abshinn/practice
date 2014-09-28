@@ -20,7 +20,8 @@ from sklearn.cluster import KMeans
 def download_data():
     os.system("wget http://archive.ics.uci.edu/ml/machine-learning-databases/00296/dataset_diabetes.zip -P DATA/")
     os.system("tar xvf DATA/dataset_diabetes.zip")
-    os.system("mv DATA/dataset_diabetes.zip DATA/diabetes/")
+    os.system("mv dataset_diabetes DATA/diabetes/")
+    os.system("head -9 DATA/diabetes/IDs_mapping.csv > DATA/diabetes/admission_type_id.csv")
 
 
 def binarize(series):
@@ -79,6 +80,8 @@ class PatientCluster(object):
     def train(self):
         """train data using a sklearn clustering algorithm"""
 
+        self.prepare()
+   
         # run KMeans to find clusters
         km = KMeans(n_clusters = self.n_clusters)
         print "==> Running Kmeans on data set of shape: {}".format(self.traindf.shape)
