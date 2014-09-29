@@ -16,6 +16,8 @@ import pdb
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn.preprocessing import Normalizer
+from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 
 
@@ -66,7 +68,7 @@ class PatientCluster(object):
         # binarize categorical text columns
         catdf = pd.DataFrame()
         dtype = data.race.dtype # grab datatype
-        features = ["race", "gender", "weight", "age", "diabetesMed", "insulin", "change", "readmitted"]
+        features = ["race", "gender", "age", "diabetesMed", "insulin", "change", "readmitted"]
         for feature in features:
             if data[feature].dtype == dtype:
                 catdf = pd.concat([catdf, binarize(data[feature])], axis = 1)
@@ -77,8 +79,7 @@ class PatientCluster(object):
         nonbindf = data[["num_medications", "num_procedures", "num_lab_procedures", "number_outpatient", 
                          "number_emergency", "number_inpatient", "number_diagnoses"]]
 
-        self.data = data
-        self.traindf = pd.concat([catdf, admdf, nonbindf], axis = 1)
+        self.data = pd.concat([catdf, admdf, nonbindf], axis = 1)
 
     def elbow(self, nrange=(2,9)):
         """train data on multiple cluster sizes and return elbow plot"""
@@ -86,7 +87,7 @@ class PatientCluster(object):
         inertias = []
         for N in xrange(*nrange):
             km = KMeans(n_clusters = N)
-            km.fit(self.traindf.values)
+            km.fit(self.data.values)
             inertias.append(km.inertia_)
 
         print inertias
@@ -97,12 +98,34 @@ class PatientCluster(object):
 
         return plt
 
+    def reduce_dimension(self, n_components=2):
+        """use principal component analysis to reduce features down to a viewable dimension"""
+
+        reducer = PCA(n_components=n_components)
+
+        X = self.data.values.astype(np.float32)
+
+        norm = Normalizer()
+        Xnorm = norm.fit_transform(X)
+
+        return reducer.fit_transform(Xnorm)
+
+    def scatter_plot(self):
+        """scatter plot of data with reduced dimensions"""
+
+        X = self.reduce_dimension(n_components=2)
+
+        plt.figure()
+        plt.scatter(X[:,0], X[:,1])
+
+        return plt
+
     def train(self):
         """train data using a sklearn clustering algorithm"""
 
-        print "==> Running Kmeans on data set of shape: {}".format(self.traindf.shape)
+        print "==> Running Kmeans on data set of shape: {}".format(self.data.shape)
         km = KMeans(n_clusters = self.n_clusters)
-        km.fit(self.traindf.values)
+        km.fit(self.data.values)
         self.klabels = km.labels_
         self.inertia = km.inertia_
 
@@ -111,18 +134,18 @@ class PatientCluster(object):
 
         for k in xrange(self.n_clusters):
             print "\n      ======== cluster {} / {} ========".format(k, (self.klabels == k).sum())
-            for column in self.traindf.columns:
+            for column in self.data.columns:
                 if column not in bools:
                     continue
-                if self.traindf[column].dtype == np.dtype("bool"):
-                    percent = self.traindf.loc[self.klabels == k, column].sum()/np.float(self.traindf[column].sum())
+                if self.data[column].dtype == np.dtype("bool"):
+                    percent = self.data.loc[self.klabels == k, column].sum()/np.float(self.data[column].sum())
                     print "{:>20}: {:.3f}".format(column, percent)
 
 
 if __name__ == "__main__":
     print __doc__
     pc = PatientCluster(n_clusters = 3)
-    pc.elbow().show()
-    pc.train()
-    pc.print_clusters()
-
+#     pc.elbow().show()
+#     pc.train()
+#     pc.print_clusters()
+    pc.scatter_plot().show()
