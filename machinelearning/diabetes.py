@@ -46,6 +46,7 @@ class PatientCluster(object):
 
     def __init__(self, n_clusters = 5):
         self.n_clusters = n_clusters
+        self.prepare()
 
     def prepare(self):
         """prepare data set for trianing, assign data to instance variable"""
@@ -79,28 +80,31 @@ class PatientCluster(object):
         self.data = data
         self.traindf = pd.concat([catdf, admdf, nonbindf], axis = 1)
 
-    def train(self):
-        """train data using a sklearn clustering algorithm"""
-
-        self.prepare()
+    def elbow(self, nrange=(2,9)):
+        """train data on multiple cluster sizes and return elbow plot"""
 
         inertias = []
-
-        for N in xrange(2, 9):
+        for N in xrange(*nrange):
             km = KMeans(n_clusters = N)
             km.fit(self.traindf.values)
             inertias.append(km.inertia_)
 
         print inertias
-        plt.plot(inertias, maker="o")
-        plt.show()
+        plt.plot(range(*nrange), inertias, marker="o", markerfacecolor="purple")
+        plt.title("cluster elbow")
+        plt.ylabel("KMeans inertia")
+        plt.xlabel("n_clusters")
+
+        return plt
+
+    def train(self):
+        """train data using a sklearn clustering algorithm"""
 
         print "==> Running Kmeans on data set of shape: {}".format(self.traindf.shape)
-        km = KMeans(n_clusters = 3)
+        km = KMeans(n_clusters = self.n_clusters)
         km.fit(self.traindf.values)
         self.klabels = km.labels_
         self.inertia = km.inertia_
-
 
     def print_clusters(self):
         """print clusters"""
@@ -117,6 +121,8 @@ class PatientCluster(object):
 
 if __name__ == "__main__":
     print __doc__
-    pc = PatientCluster(n_clusters = 4)
+    pc = PatientCluster(n_clusters = 3)
+    pc.elbow().show()
     pc.train()
+    pc.print_clusters()
 
