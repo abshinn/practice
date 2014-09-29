@@ -13,14 +13,16 @@ import numpy as np
 import pandas as pd
 import pdb
 
-# model selection
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 from sklearn.cluster import KMeans
 
 
 def download_data():
     os.system("wget http://archive.ics.uci.edu/ml/machine-learning-databases/00296/dataset_diabetes.zip -P DATA/")
     os.system("tar xvf DATA/dataset_diabetes.zip")
-    os.system("mv dataset_diabetes DATA/diabetes/")
+    os.system("mv dataset_diabetes.zip DATA/diabetes/")
     os.system("head -9 DATA/diabetes/IDs_mapping.csv > DATA/diabetes/admission_type_id.csv")
 
 
@@ -81,13 +83,27 @@ class PatientCluster(object):
         """train data using a sklearn clustering algorithm"""
 
         self.prepare()
-   
-        # run KMeans to find clusters
-        km = KMeans(n_clusters = self.n_clusters)
-        print "==> Running Kmeans on data set of shape: {}".format(self.traindf.shape)
-        km.fit(self.traindf.values)
 
+        inertias = []
+
+        for N in xrange(2, 9):
+            km = KMeans(n_clusters = N)
+            km.fit(self.traindf.values)
+            inertias.append(km.inertia_)
+
+        print inertias
+        plt.plot(inertias, maker="o")
+        plt.show()
+
+        print "==> Running Kmeans on data set of shape: {}".format(self.traindf.shape)
+        km = KMeans(n_clusters = 3)
+        km.fit(self.traindf.values)
         self.klabels = km.labels_
+        self.inertia = km.inertia_
+
+
+    def print_clusters(self):
+        """print clusters"""
 
         for k in xrange(self.n_clusters):
             print "\n      ======== cluster {} / {} ========".format(k, (self.klabels == k).sum())
@@ -97,7 +113,6 @@ class PatientCluster(object):
                 if self.traindf[column].dtype == np.dtype("bool"):
                     percent = self.traindf.loc[self.klabels == k, column].sum()/np.float(self.traindf[column].sum())
                     print "{:>20}: {:.3f}".format(column, percent)
-
 
 
 if __name__ == "__main__":
