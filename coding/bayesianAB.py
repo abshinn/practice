@@ -11,12 +11,11 @@ import seaborn as sns
 
 sns.set(palette="Set2")
 sns.set_context("poster")
-rcParams["figure.figsize"] = 18, 8
 
 beta_dist = np.random.beta
 
 
-def beta_distribution_plot():
+def distribution_plot():
     """
     Simulate a control and treatments, and plot their distributions.
     """
@@ -26,10 +25,10 @@ def beta_distribution_plot():
     Cviews = 1000
 
     # treatments
-    T1views = 210
-    T1conversions = 1000
-    T2views = 150
-    T2conversions = 1000
+    T1conversions = 210
+    T1views = 1000
+    T2conversions = 150
+    T2views = 1000
 
     n_samples = 100000 # number of samples to use in the distribution
     control    = beta_dist( Cconversions + 1,  Cviews -  Cconversions + 1, n_samples)
@@ -49,6 +48,7 @@ def beta_distribution_plot():
     print "Probability1: {}".format(proba1*100)
     print "Probability2: {}".format(proba2*100)
 
+    return plt
 
 
 def test_over_time():
@@ -92,7 +92,11 @@ def test_over_time():
 
     del views, conversions, probas
 
+    return plt 
+
+
+
 if __name__ == "__main__":
-    distribution_plot()
-    test_over_time()
+    distribution_plot().show()
+    test_over_time().show()
 
