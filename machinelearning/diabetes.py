@@ -19,6 +19,7 @@ import seaborn as sns
 from sklearn.preprocessing import Normalizer
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
+from sklearn.tree import DecisionTreeClassifier
 
 
 def download_data():
@@ -126,26 +127,34 @@ class PatientCluster(object):
         print "==> Running Kmeans on data set of shape: {}".format(self.data.shape)
         km = KMeans(n_clusters = self.n_clusters)
         km.fit(self.data.values)
-        self.klabels = km.labels_
+        self.labels = km.labels_
         self.inertia = km.inertia_
+
+    def cluster_importance(self, clf=DecisionTreeClassifier()):
+        """once trained, figure out the most important features for each cluster using a tree classifier"""
+
+        for k in xrange(self.n_clusters):
+            labels = (self.labels == k)
+            clf.fit(self.data.values, labels)
+
+            print "\n      ======== cluster {} / {} ========".format(k + 1, self.n_clusters)
+            for imp, col in sorted(zip(clf.feature_importances_, self.data.columns), key=lambda (imp, col): imp, reverse=True):
+                print "[{:.5f}] {}".format(imp, col)
 
     def print_clusters(self):
         """print clusters"""
 
         for k in xrange(self.n_clusters):
-            print "\n      ======== cluster {} / {} ========".format(k, (self.klabels == k).sum())
+            print "\n      ======== cluster {} / {} ========".format(k + 1, self.n_clusters)
             for column in self.data.columns:
                 if column not in bools:
                     continue
                 if self.data[column].dtype == np.dtype("bool"):
-                    percent = self.data.loc[self.klabels == k, column].sum()/np.float(self.data[column].sum())
+                    percent = self.data.loc[self.labels == k, column].sum()/np.float(self.data[column].sum())
                     print "{:>20}: {:.3f}".format(column, percent)
 
 
 if __name__ == "__main__":
     print __doc__
     pc = PatientCluster(n_clusters = 3)
-#     pc.elbow().show()
-#     pc.train()
-#     pc.print_clusters()
-    pc.scatter_plot().show()
+    pc.train()
