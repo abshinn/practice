@@ -14,12 +14,14 @@ class KMeans(object):
 
     def _initialize_centroids(self, X):
         """pick random data points as inital cluster centroids"""
+
+        self.old_label, self.label = None, np.zeros(self.m)
         self.centroids = X[np.random.choice(range(self.m), self.n_clusters, replace=False),:]
 
     def _assign_data_to_centroids(self, X):
         """assign data points to current centroids"""
 
-        self.label = np.zeros(self.m)
+        self.old_label, self.label = self.label, np.zeros(self.m)
 
         for i, example in enumerate(X):
             self.label[i] = np.argmin( [np.linalg.norm(example - centroid) for centroid in self.centroids] )
@@ -32,7 +34,7 @@ class KMeans(object):
             self.centroids[k,:] = X[self.label == k,:].mean(axis=0)
 
     def _has_converged(self):
-        return True
+        return not np.all(self.old_label == self.label)
 
     def plot_centroids(self, p):
         for cluster in self.centroids: 
@@ -50,11 +52,13 @@ class KMeans(object):
         """
         self.m, self.n = X.shape
         self._initialize_centroids(X)
-        self._assign_data_to_centroids(X)
-        self._update_centroids(X)
 
-#         while self._has_converged(): 
-#             pass
+        iter = 0
+        while self._has_converged(): 
+            print "iter: {}".format(iter)
+            iter += 1
+            self._assign_data_to_centroids(X)
+            self._update_centroids(X)
 
 
 def sample_set():
@@ -70,6 +74,7 @@ if __name__ == "__main__":
 
     km = KMeans(n_clusters=3)
     km.fit(X)
+
     km.plot_centroids(plt)
     km.plot_residuals(plt)
 
