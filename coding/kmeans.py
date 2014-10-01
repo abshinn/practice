@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 class KMeans(object):
 
     def __init__(self, n_clusters):
@@ -37,17 +38,22 @@ class KMeans(object):
         return not np.all(self.old_label == self.label)
 
     def plot_centroids(self, p):
+        """plot centroids for a two-dimensional feature space"""
+
         for cluster in self.centroids: 
             p.plot(cluster[0], cluster[1], marker="x", markerfacecolor="red", markeredgewidth=4, markersize=10, alpha=0.7)
 
     def plot_residuals(self, p):
+        """plot residual from data point to corresponding centroid for a two-dimensional feature space"""
+
         for k, centroid in enumerate(self.centroids):
             U = X[self.label == k,:]
             for u in U:
                 p.plot([u[0], centroid[0]], [u[1], centroid[1]], linewidth=2, color="black", alpha=0.1)
 
     def fit(self, X):
-        """
+        """find k clusters
+
         INPUT: X -- numpy.ndarray feature matrix
         """
         self.m, self.n = X.shape
@@ -77,5 +83,4 @@ if __name__ == "__main__":
 
     km.plot_centroids(plt)
     km.plot_residuals(plt)
-
     plt.show()
