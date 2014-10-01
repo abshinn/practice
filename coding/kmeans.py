@@ -19,7 +19,7 @@ class KMeans(object):
     def _assign_data_to_centroids(self, X):
         """assign data points to current centroids"""
 
-        self.label = np.zeros((self.m, self.n_clusters))
+        self.label = np.zeros(self.m)
 
         for i, example in enumerate(X):
             self.label[i] = np.argmin( [np.linalg.norm(example - centroid) for centroid in self.centroids] )
@@ -33,8 +33,13 @@ class KMeans(object):
 
     def plot_centroids(self, p):
         for cluster in self.centroids: 
-            print cluster[0], cluster[1]
-            p.plot(cluster[0], cluster[1], marker="x", markerfacecolor="red", markeredgewidth=4, markersize=10, alpha=.7)
+            p.plot(cluster[0], cluster[1], marker="x", markerfacecolor="red", markeredgewidth=4, markersize=10, alpha=0.7)
+
+    def plot_residuals(self, p):
+        for k, centroid in enumerate(self.centroids):
+            U = X[self.label == k,:]
+            for u in U:
+                p.plot([u[0], centroid[0]], [u[1], centroid[1]], linewidth=2, color="black", alpha=0.1)
 
     def fit(self, X):
         """
@@ -62,5 +67,6 @@ if __name__ == "__main__":
     km = KMeans(n_clusters=3)
     km.fit(X)
     km.plot_centroids(plt)
+    km.plot_residuals(plt)
 
     plt.show()
