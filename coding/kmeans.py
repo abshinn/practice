@@ -24,9 +24,12 @@ class KMeans(object):
         for i, example in enumerate(X):
             self.label[i] = np.argmin( [np.linalg.norm(example - centroid) for centroid in self.centroids] )
 
-    def _update_centroids(self):
+    def _update_centroids(self, X):
         """update centroid positions based on current assignment"""
-        pass
+
+        self.centroids = np.zeros((self.n_clusters, self.n))
+        for k in xrange(self.n_clusters):
+            self.centroids[k,:] = X[self.label == k,:].mean(axis=0)
 
     def _has_converged(self):
         return True
@@ -48,6 +51,7 @@ class KMeans(object):
         self.m, self.n = X.shape
         self._initialize_centroids(X)
         self._assign_data_to_centroids(X)
+        self._update_centroids(X)
 
 #         while self._has_converged(): 
 #             pass
