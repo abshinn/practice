@@ -1,36 +1,37 @@
 #!/usr/bin/env spark-submit
 """
-Implement KMeans using Lloyd's algorithm.
+Implement KMeans using Lloyd's algorithm in Spark.
 """
 
-from pyspark import SparkContext
+from pyspark import SparkContext, SparkConf
 
+from operator import sub
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 class KMeans(object):
 
-    def fit(self, k_clusters):
-        """find k clusters"""
+    def __init__(self, k_clusters):
         self.k_clusters = k_clusters
 
-        self.m, self.n = X.shape
-        self._initialize_centroids(X)
+    def fit(self, Xrdd):
+        """find k clusters"""
 
-        iter = 0
-        while self._has_converged(): 
-            print "iter: {}".format(iter)
-            iter += 1
-            labels = self.foreach(self._assign_data_to_centroids)
+        self.centroids = Xrdd.takeSample(False, self.k_clusters)
+        for centroid in self.centroids:
+            print centroid
 
+        old_labels = None
+        labels = Xrdd.map(self._assign_data_to_centroids)
+
+#         iter = 0
+#         while self._has_converged(): 
+#             print "iter: {}".format(iter)
+#             iter += 1
+#             labels = Xrdd.foreach(self._assign_data_to_centroids)
+# 
 #             self._update_centroids(X)
-
-    def _initialize_centroids(self, X):
-        """pick random data points as inital cluster centroids"""
-        pass
-#         self.old_label, self.label = None, np.zeros(self.m)
-#         self.centroids = X[np.random.choice(range(self.m), self.n_clusters, replace=False),:]
 
     def _assign_data_to_centroids(self, u):
         """Assign data points to current centroids. To be applied to a Spark RDD foreach() method. 
@@ -56,8 +57,11 @@ def sample_set():
     X = np.c_[x, y]
     return X
 
-
 if __name__ == "__main__":
-    sc = SparkContext(appName="PythonKMeans")
+    sc = SparkContext(appName="PythonKMeans", conf=SparkConf().set("spark.driver.host", "localhost"))
     X = sc.parallelize(sample_set())
-    print X
+
+    km = KMeans(k_clusters=3)
+
+    km.fit(X)
+
