@@ -4,12 +4,7 @@ Implement KMeans using Lloyd's algorithm in Spark.
 """
 
 from pyspark import SparkContext, SparkConf
-
-from operator import sub
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-
 np.random.seed(42)
 
 class KMeans(object):
@@ -31,7 +26,6 @@ class KMeans(object):
         prev_dist = None
         current_dist = Xrdd.map(lambda (l, u): np.linalg.norm(u - self.centroids[l])).sum()
 
-
         iter = 0
         while current_dist != prev_dist: 
             print "iter: {}".format(iter)
@@ -41,7 +35,6 @@ class KMeans(object):
             Xrdd = Xrdd.map(lambda l, u: (self._assign_data_to_centroids(u), u))
 
             prev_dist, current_dist = current_dist, Xrdd.map(lambda (l, u): np.linalg.norm(u - self.centroids[l])).sum()
-
   
     def _update_centroids(self, X):
         return X.combineByKey(self._combiner, self._merge_value, self._merge_combiners).map(self._mean).collect()
