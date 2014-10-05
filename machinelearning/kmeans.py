@@ -43,7 +43,7 @@ class KMeans(object):
         for cluster in self.centroids: 
             p.plot(cluster[0], cluster[1], marker="x", markerfacecolor="red", markeredgewidth=4, markersize=10, alpha=0.7)
 
-    def plot_residuals(self, p):
+    def plot_residuals(self, p, X):
         """plot residual from data point to corresponding centroid for a two-dimensional feature space"""
 
         for k, centroid in enumerate(self.centroids):
@@ -68,13 +68,17 @@ class KMeans(object):
 
 
 def sample_set():
+    """generate positively correlated non-seperable data"""
+
     x = np.linspace(0, 10)
     y = x + 3 * np.random.randn(50)
     X = np.c_[x, y]
     return X
 
 
-if __name__ == "__main__":
+def example():
+    """example fitting 3 clusters to non-separable data"""
+
     X = sample_set()
     plt.scatter(X[:,0], X[:,1], marker="o", color="steelblue")
 
@@ -82,5 +86,9 @@ if __name__ == "__main__":
     km.fit(X)
 
     km.plot_centroids(plt)
-    km.plot_residuals(plt)
+    km.plot_residuals(plt, X)
     plt.show()
+
+
+if __name__ == "__main__":
+    example()
