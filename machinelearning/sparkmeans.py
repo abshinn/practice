@@ -32,12 +32,18 @@ class KMeans(object):
             iter += 1
 
             self.centroids = self._update_centroids(Xrdd)
-            Xrdd = Xrdd.map(lambda l, u: (self._assign_data_to_centroids(u), u))
+
+            Xrdd = Xrdd.map(lambda (l, u): (self._assign_data_to_centroids(u), u))
+
+            for centroid in self.centroids:
+                print centroid
 
             prev_dist, current_dist = current_dist, Xrdd.map(lambda (l, u): np.linalg.norm(u - self.centroids[l])).sum()
   
     def _update_centroids(self, X):
-        return X.combineByKey(self._combiner, self._merge_value, self._merge_combiners).map(self._mean).collect()
+        sumByKey = X.combineByKey(self._combiner, self._merge_value, self._merge_combiners)
+        averageByKey = sumByKey.map(self._mean).collect()
+        return averageByKey
 
     def _combiner(self, u):
         """_combiner function for combineByKey to compute average centroid by cluster group"""
@@ -60,10 +66,6 @@ class KMeans(object):
         INPUT: u, row vector in X
         """
         return np.argmin( [np.linalg.norm(u - centroid) for centroid in self.centroids] )
-
-    def _update_centroids(self, X):
-        """update centroid positions based on current assignment"""
-        pass
 
     def _has_converged(self, old_labels, labels):
         remainder = (old_labels - labels).sum()
