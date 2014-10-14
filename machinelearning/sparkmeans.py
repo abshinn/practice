@@ -1,7 +1,5 @@
 #!/usr/bin/env spark-submit
-"""
-Implement KMeans using Lloyd's algorithm in Spark.
-"""
+""" Implement KMeans using Lloyd's algorithm in Spark. """
 
 from pyspark import SparkContext, SparkConf
 import numpy as np
@@ -13,7 +11,7 @@ class KMeans(object):
         self.k_clusters = k_clusters
 
     def fit(self, Xrdd):
-        """find k clusters"""
+        """ Fit data to k clusters using Lloyd's algorithm. """
 
         self.centroids = Xrdd.takeSample(False, self.k_clusters, 42)
 
@@ -41,38 +39,18 @@ class KMeans(object):
             prev_dist, current_dist = current_dist, Xrdd.map(lambda (l, u): np.linalg.norm(u - self.centroids[l])).sum()
   
     def _update_centroids(self, X):
-        sumByKey = X.combineByKey(self._combiner, self._merge_value, self._merge_combiners)
-        averageByKey = sumByKey.map(self._mean).collect()
+        """ Update centroids by using the combineByKey RDD method. """
+        sumByKey = X.combineByKey(lambda value: (value, 1),
+                                  lambda x, value: (x[0] + value, x[1] + 1),
+                                  lambda x, y: (x[0] + y[0], x[1] + y[1]))
+        averageByKey = sumByKey.map(lambda (key, (value_sum, count)): value_sum / count).collect()
         return averageByKey
 
-    def _combiner(self, u):
-        """_combiner function for combineByKey to compute average centroid by cluster group"""
-        return (u, 1)
-
-    def _merge_value(self, u, value):
-        """_merge_value function for combineByKey to compute average centroid by cluster group"""
-        return (u[0] + value, u[1] + 1)
-
-    def _merge_combiners(self, u, v):
-        """_merge_combiners function for combineByKey to compute average centroid by cluster group"""
-        return (u[0] + v[0], u[1] + v[1])
-
-    def _mean(self, (l, (u, count))):
-        """_compute mean value by key when rdd is in the form: (label, (cluster_sum, cluster_count))"""
-        return u / count
-
     def _assign_data_to_centroids(self, u):
-        """Assign data points to current centroids. To be applied to a Spark RDD foreach() method. 
+        """ Assign data points to current centroids, input func to foreach() RDD method. 
         INPUT: u, row vector in X
         """
         return np.argmin( [np.linalg.norm(u - centroid) for centroid in self.centroids] )
-
-    def _has_converged(self, old_labels, labels):
-        remainder = (old_labels - labels).sum()
-        if remainder > 0:
-            return False
-        else:
-            return True
 
 
 def sample_set():
