@@ -34,7 +34,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 def download_data():
-    """download data with wget"""
+    """ download data with wget """
 
     baseurl = "http://archive.ics.uci.edu/ml/machine-learning-databases/pima-indians-diabetes/pima-indians-diabetes"
     os.system("mkdir -p DATA/pima/")
@@ -43,14 +43,14 @@ def download_data():
 
 
 class Pima(object):
-    """UCI Pima Indians dataset"""
+    """ UCI Pima Indians dataset """
 
     def __init__(self, estimator):
-        self.data, self.label = self.prepare()
+        self.data, self.label = self._prepare()
         self.estimator = estimator
 
-
-    def prepare(self):
+    def _prepare(self):
+        """ Return tuple: (data, label). """
 
         filepath = "DATA/pima/pima-indians-diabetes.data"
 
@@ -69,8 +69,8 @@ class Pima(object):
 
         return data, label
 
-
     def train(self, n_examples=None):
+        """ Train and fit data with self.estimator and show classification report. """
 
         X = self.data.values.astype(np.float32)
 
@@ -86,8 +86,8 @@ class Pima(object):
         y_score = self.estimator.predict_proba(X_test)
         print "roc: {}".format( roc_auc_score(y_test, y_score[:,1]) )
 
-
     def grid_search(self, param_grid, scoring=None, cv=3):
+        """ Run a grid-search with self.estimator through param_grid parameter space. """
 
         X = self.data.values.astype(np.float)
         y = self.label.values
@@ -100,8 +100,8 @@ class Pima(object):
 
         self.estimator = grid_clf.best_estimator_
 
-
     def experience_curve(self, train_sizes=None, cv=3, ylim=None, scoring="roc_auc"):
+        """ Return matplotlib plt object with learning/experience curve using self.estimator. """
 
         X = self.data.values.astype(np.float32)
         y = self.label.values
@@ -137,8 +137,8 @@ class Pima(object):
 
         return plt
 
-
     def plot_roc_curve(self):
+        """ Return matplotlib plt object with a roc-auc curve. """
 
         X = self.data.values.astype(np.float32)
         y = self.label.values
@@ -162,8 +162,8 @@ class Pima(object):
 
         return plt
 
-
     def reduce_dimension(self, n_components=2):
+        """ Return PCA transform of self.data, with n_components. """
 
         reducer = PCA(n_components=n_components)
 
@@ -174,8 +174,8 @@ class Pima(object):
 
         return reducer.fit_transform(Xnorm)
 
-
     def plot(self):
+        """ Return matplotlib plt object of scatter plot using first two features. """
 
         X = self.reduce_dimension(n_components=None)
 
@@ -184,8 +184,8 @@ class Pima(object):
 
         return plt
 
-
     def cluster(self):
+        """ Cluster data with reduced dimensions. """
 
         X = self.reduce_dimension(n_components=2)
     
@@ -193,9 +193,8 @@ class Pima(object):
         print cv
         print "mean: {}\nstd: {}".format(np.mean(cv), np.std(cv))
 
-
 def forest_search():
-    """Random Forest Grid Search"""
+    """ Random Forest Grid Search. """
 
     estimator = RandomForestClassifier()
     parameters = {"n_estimators":(10, 20, 30, 40), 
