@@ -40,10 +40,10 @@ class KMeans(object):
   
     def _update_centroids(self, X):
         """ Update centroids by using the combineByKey RDD method. """
-        sumByKey = X.combineByKey(lambda value: (value, 1),
+        sumCount = X.combineByKey(lambda value: (value, 1),
                                   lambda x, value: (x[0] + value, x[1] + 1),
                                   lambda x, y: (x[0] + y[0], x[1] + y[1]))
-        averageByKey = sumByKey.map(lambda (key, (value_sum, count)): value_sum / count).collect()
+        averageByKey = sumCount.map(lambda (key, (value_sum, count)): value_sum / count).collect()
         return averageByKey
 
     def _assign_data_to_centroids(self, u):
