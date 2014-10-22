@@ -4,6 +4,8 @@
 from pyspark import SparkContext, SparkConf
 import numpy as np
 np.random.seed(42)
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 class KMeans(object):
 
@@ -52,18 +54,34 @@ class KMeans(object):
         """
         return np.argmin( [np.linalg.norm(u - centroid) for centroid in self.centroids] )
 
+    def get_centroids(self):
+        """ Return centroids after fit. """
+        return self.centroids
 
-def sample_set():
-    x = np.linspace(0, 10)
-    y = x + 3 * np.random.randn(50)
+
+def plot_centroids(centroids, pl):
+    """ Plot centroids for a two-dimensional feature space. """
+
+    for cluster in centroids: 
+        pl.plot(cluster[0], cluster[1], marker="x", markerfacecolor="red", markeredgewidth=4, markersize=10, alpha=0.7)
+
+
+def sample_set(N):
+    x = np.linspace(0, 10, num=N)
+    y = x + 3 * np.random.randn(N)
     X = np.c_[x, y]
     return X
 
 if __name__ == "__main__":
     sc = SparkContext(appName="PythonKMeans", conf=SparkConf().set("spark.driver.host", "localhost"))
-    X = sc.parallelize(sample_set())
+    X = sample_set(N=500)
+    Xrdd = sc.parallelize(X)
 
     km = KMeans(k_clusters=3)
 
-    km.fit(X)
+    km.fit(Xrdd)
+
+    plt.scatter(X[:,0], X[:,1], marker="o", color="steelblue")
+    plot_centroids(km.get_centroids(), plt)
+    plt.show()
 
