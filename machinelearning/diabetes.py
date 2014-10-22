@@ -49,15 +49,14 @@ class PatientCluster(object):
 
     def __init__(self, n_clusters = 5):
         self.n_clusters = n_clusters
-        self.prepare()
+        self._prepare()
 
-    def prepare(self):
+    def _prepare(self):
         """prepare data set for trianing, assign data to instance variable"""
 
         if os.path.isfile("DATA/diabetes/admission_type_id.csv") == False:
             download_data()
 
-        # load data
         id_mapping = pd.read_csv("DATA/diabetes/admission_type_id.csv", index_col = 0)
         data = pd.read_csv("DATA/diabetes/diabetic_data.csv")
 
