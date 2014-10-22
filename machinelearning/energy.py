@@ -1,12 +1,12 @@
 #!/usr/bin/env python2.7 -B -tt
-""" Electrical Energy Output
-http://archive.ics.uci.edu/ml/datasets/Combined+Cycle+Power+Plant
+""" Electrical Energy Output Prediction
+
+    http://archive.ics.uci.edu/ml/datasets/Combined+Cycle+Power+Plant
 
     features: 4 (Temp, Ambient Pressure, Relative Humidity, Exhaust Vacuum), predict on Energy Output
     examples: 9568 over 6 years
 feature type: float
         task: predict net hourly electrical energy output
-
 """
 
 import os
@@ -14,46 +14,88 @@ import numpy as np
 import pandas as pd
 import pdb
 
+from sklearn.learning_curve import learning_curve
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.axes_style("darkgrid")
+
 from sklearn.cross_validation import train_test_split
 from sklearn.preprocessing import normalize
 # from sklearn.preprocessing import PolynomialFeatures
 
-# model selection
 from sklearn.linear_model import Ridge
 from sklearn.linear_model import LinearRegression
 
 
 def download_data():
-    """fetch data with wget"""
+    """ Fetch data with wget and unzip. """
 
     baseurl = "http://archive.ics.uci.edu/ml/machine-learning-databases/00294/CCPP.zip"
     os.system("mkdir -p DATA/energy/")
     os.system("wget {} -P DATA/energy/".format(baseurl))
-
-    # unzip    
     os.system("unzip DATA/energy/CCPP -d DATA/energy/")
 
 
 class EnergyOutput(object):
+    """ """
 
-    def __init__(self):
-        self.cv_dfs = self.prep_data()
+    def __init__(self, model):
+        self.X, self.y = self._prepare()
+        self.model = model
 
-    def prep_data(self):
+    def _prepare(self):
 
         filename = "DATA/energy/CCPP/Folds5x2_pp.xlsx"
 
         if not os.path.isfile(filename):
             download_data()
 
-        xl_file = pd.ExcelFile(filename)
-        dfs = {sheet_name: xl_file.parse(sheet_name) for sheet_name in xl_file.sheet_names}
-        return dfs
+        exceldf = pd.ExcelFile(filename)
+#         dfdict = {sheet_name: exceldf.parse(sheet) for sheet in exceldf.sheet_names}
+        data = pd.concat([exceldf.parse(sheet) for sheet in exceldf.sheet_names]).values
+        X = data[:,:-1].astype(np.float32)
+        y = data[:,-1]
 
+        return (X, y)
+
+    def experience_curve(self, train_sizes=None, cv=3, ylim=None, scoring="r2"):
+        """ Return matplotlib plt object with learning/experience curve using self.estimator. """
+
+#         X = normalize(self.X)
+
+        if not train_sizes:
+            train_sizes = np.linspace(.1, 1.0, 10)
+
+        plt.figure()
+        plt.title("UCI Energy Output")
+        if ylim is not None:
+            plt.ylim(*ylim)
+        plt.xlabel("Training examples")
+        plt.ylabel("Score")
+        train_sizes, train_scores, test_scores = learning_curve(
+            self.model, self.X, self.y, cv=cv, n_jobs=-1, train_sizes=train_sizes, scoring=scoring)
+
+        train_scores_mean = np.mean(train_scores, axis=1)
+        train_scores_std = np.std(train_scores, axis=1)
+        test_scores_mean = np.mean(test_scores, axis=1)
+        test_scores_std = np.std(test_scores, axis=1)
+
+        plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
+                         train_scores_mean + train_scores_std, alpha=0.1,
+                         color="r")
+        plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
+                         test_scores_mean + test_scores_std, alpha=0.1, color="g")
+        plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
+                 label="Training score")
+        plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
+                 label="Cross-validation score")
+
+        plt.legend(loc="best")
+
+        return plt
 
     def train(self, models = [Ridge(), LinearRegression()]):
 
-        # run models and print score
         for model in models:
             scores = []
             for cvset in self.cv_dfs.values():
@@ -74,6 +116,6 @@ class EnergyOutput(object):
 
 
 if __name__ == "__main__":
-    print __doc__
-    energy = EnergyOutput()
-    energy.train()
+    energy = EnergyOutput(LinearRegression())
+    energy.experience_curve().show()
+
