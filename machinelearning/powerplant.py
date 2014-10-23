@@ -12,7 +12,6 @@ feature type: float
 import os
 import numpy as np
 import pandas as pd
-import pdb
 
 from sklearn.learning_curve import learning_curve
 import matplotlib.pyplot as plt
@@ -25,7 +24,7 @@ from sklearn.preprocessing import normalize
 
 from sklearn.linear_model import Ridge
 from sklearn.linear_model import LinearRegression
-
+from sklearn.tree import DecisionTreeRegressor
 
 def download_data():
     """ Fetch data with wget and unzip. """
@@ -39,9 +38,9 @@ def download_data():
 class EnergyOutput(object):
     """ """
 
-    def __init__(self, model):
+    def __init__(self, regressor):
         self.X, self.y = self._prepare()
-        self.model = model
+        self.regressor = regressor 
 
     def _prepare(self):
 
@@ -58,7 +57,7 @@ class EnergyOutput(object):
 
         return (X, y)
 
-    def experience_curve(self, train_sizes=None, cv=3, ylim=None, scoring="r2"):
+    def experience_curve(self, train_sizes=None, cv=5, ylim=None, scoring="mean_squared_error"):
         """ Return matplotlib plt object with learning/experience curve using self.estimator. """
 
 #         X = normalize(self.X)
@@ -73,7 +72,7 @@ class EnergyOutput(object):
         plt.xlabel("Training examples")
         plt.ylabel("Score")
         train_sizes, train_scores, test_scores = learning_curve(
-            self.model, self.X, self.y, cv=cv, n_jobs=-1, train_sizes=train_sizes, scoring=scoring)
+            self.regressor, self.X, self.y, cv=cv, n_jobs=-1, train_sizes=train_sizes, scoring=scoring)
 
         train_scores_mean = np.mean(train_scores, axis=1)
         train_scores_std = np.std(train_scores, axis=1)
@@ -116,6 +115,6 @@ class EnergyOutput(object):
 
 
 if __name__ == "__main__":
-    energy = EnergyOutput(LinearRegression())
+    energy = EnergyOutput(DecisionTreeRegressor(max_depth=4))
     energy.experience_curve().show()
 
