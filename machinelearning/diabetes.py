@@ -1,20 +1,21 @@
 #!/usr/bin/env python2.7 -B -tt
-""" Patient Clustering: UCI Diabetes Dataset
-https://archive.ics.uci.edu/ml/datasets/Diabetes+130-US+hospitals+for+years+1999-2008
+""" UCI 130-Hospitals Diabetes Data Set
+
+    https://archive.ics.uci.edu/ml/datasets/Diabetes+130-US+hospitals+for+years+1999-2008
 
     features: 55
     examples: 100,000
 feature type: mixed categorical
-        task: cluster patient types and categorize the clusters
+        task: clustering, classification
 """
 
 import os
 import numpy as np
 import pandas as pd
-import pdb
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+sns.axes_style("darkgrid")
 
 from sklearn.preprocessing import Normalizer
 from sklearn.decomposition import PCA
@@ -30,7 +31,7 @@ def download_data():
 
 
 def binarize(series):
-    """binarize a pandas series of categorical strings into a sparse dataframe"""
+    """ Binarize a pandas series of categorical strings into a sparse dataframe. """
     name = series.name
     df = pd.DataFrame()
     for category in series.value_counts().index:
@@ -45,14 +46,14 @@ bools = [u'Caucasian', u'AfricanAmerican', u'Hispanic', u'Other', u'Asian', u'Fe
 
 
 class PatientCluster(object):
-    """patient clustering class"""
+    """ UCI 130-Hospitals Diabetes Data Set. """
 
     def __init__(self, n_clusters = 5):
         self.n_clusters = n_clusters
         self._prepare()
 
     def _prepare(self):
-        """prepare data set for trianing, assign data to instance variable"""
+        """ Prepare data set for trianing, assign data to instance variable. """
 
         if os.path.isfile("DATA/diabetes/admission_type_id.csv") == False:
             download_data()
@@ -82,7 +83,7 @@ class PatientCluster(object):
         self.data = pd.concat([catdf, admdf, nonbindf], axis = 1)
 
     def elbow(self, nrange=(2,9)):
-        """train data on multiple cluster sizes and return elbow plot"""
+        """ Train data on multiple cluster sizes and return elbow plot. """
 
         inertias = []
         for N in xrange(*nrange):
@@ -99,7 +100,7 @@ class PatientCluster(object):
         return plt
 
     def reduce_dimension(self, n_components=2):
-        """use principal component analysis to reduce features down to a viewable dimension"""
+        """ Use principal component analysis to reduce features down to a viewable dimension. """
 
         reducer = PCA(n_components=n_components)
 
@@ -111,7 +112,7 @@ class PatientCluster(object):
         return reducer.fit_transform(Xnorm)
 
     def scatter_plot(self):
-        """scatter plot of data with reduced dimensions"""
+        """ Scatter plot of data with reduced dimensions. """
 
         X = self.reduce_dimension(n_components=2)
 
@@ -121,7 +122,7 @@ class PatientCluster(object):
         return plt
 
     def train(self):
-        """train data using a sklearn clustering algorithm"""
+        """ Train data using a sklearn clustering algorithm. """
 
         print "==> Running Kmeans on data set of shape: {}".format(self.data.shape)
         km = KMeans(n_clusters = self.n_clusters)
