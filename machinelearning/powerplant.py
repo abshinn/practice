@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.7 -B -tt
-""" Electrical Energy Output Prediction
+""" Combined Cycle Power Plant Data Set
 
     http://archive.ics.uci.edu/ml/datasets/Combined+Cycle+Power+Plant
 
