@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7 -B -tt
-""" UCI Pima Indians Diabetes Dataset
-http://archive.ics.uci.edu/ml/datasets/Pima+Indians+Diabetes
+""" UCI Pima Indians Diabetes Classification
+
+    http://archive.ics.uci.edu/ml/datasets/Pima+Indians+Diabetes
 
     features: 8
     examples: 768
@@ -34,7 +35,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 def download_data():
-    """ download data with wget """
+    """ Download data with wget. """
 
     baseurl = "http://archive.ics.uci.edu/ml/machine-learning-databases/pima-indians-diabetes/pima-indians-diabetes"
     os.system("mkdir -p DATA/pima/")
@@ -43,7 +44,7 @@ def download_data():
 
 
 class Pima(object):
-    """ UCI Pima Indians dataset """
+    """ UCI Pima Indians dataset. """
 
     def __init__(self, estimator):
         self.data, self.label = self._prepare()
@@ -61,8 +62,8 @@ class Pima(object):
 
         data = pd.read_csv(filepath, header=None, names=names)
 
-        data.blood_pressure[data.blood_pressure == 0] = np.nan
-        data.bmi[data.bmi == 0] = np.nan
+        data.blood_pressure = data.blood_pressure.apply(lambda x: x if x else np.nan)
+        data.bmi = data.bmi.apply(lambda x: x if x else np.nan)
         data = data.dropna()
 
         label = data.pop("label")
@@ -159,6 +160,7 @@ class Pima(object):
         plt.ylabel("True Positive Rate")
         plt.title("Pima Indians Diabetes Classification")
         plt.legend(loc="lower right")
+        plt.axis("equal")
 
         return plt
 
