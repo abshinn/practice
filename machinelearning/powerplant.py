@@ -19,7 +19,6 @@ import seaborn as sns
 sns.axes_style("darkgrid")
 
 from sklearn.cross_validation import train_test_split
-from sklearn.preprocessing import normalize
 # from sklearn.preprocessing import PolynomialFeatures
 
 from sklearn.linear_model import Ridge
@@ -27,7 +26,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 
 def download_data():
-    """ Fetch data with wget and unzip. """
+    """ Fetch data with wget, and unpack with unzip. """
 
     baseurl = "http://archive.ics.uci.edu/ml/machine-learning-databases/00294/CCPP.zip"
     os.system("mkdir -p DATA/energy/")
@@ -36,7 +35,7 @@ def download_data():
 
 
 class EnergyOutput(object):
-    """ """
+    """ Prepare UCI Power Plant data and model the net hourly energy output. """
 
     def __init__(self, regressor):
         self.X, self.y = self._prepare()
@@ -60,7 +59,7 @@ class EnergyOutput(object):
     def experience_curve(self, train_sizes=None, cv=5, ylim=None, scoring="mean_squared_error"):
         """ Return matplotlib plt object with learning/experience curve using self.estimator. """
 
-#         X = normalize(self.X)
+        print "params: ", self.regressor.get_params()
 
         if not train_sizes:
             train_sizes = np.linspace(.1, 1.0, 10)
@@ -100,7 +99,6 @@ class EnergyOutput(object):
             for cvset in self.cv_dfs.values():
                 data = cvset.values
                 X = data[:,:-1]
-#                 X = normalize(X)
                 y = data[:,-1]
 
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .20, random_state = 42)
@@ -115,6 +113,8 @@ class EnergyOutput(object):
 
 
 if __name__ == "__main__":
-    energy = EnergyOutput(DecisionTreeRegressor(max_depth=4))
+#     energy = EnergyOutput(DecisionTreeRegressor(max_depth=4))
+#     energy = EnergyOutput(LinearRegression(fit_intercept=False, normalize=False))
+    energy = EnergyOutput(Ridge(alpha=30))
     energy.experience_curve().show()
 
