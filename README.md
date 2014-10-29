@@ -18,6 +18,7 @@ practice
 
 - [UCI Adult](https://github.com/abshinn/practice/blob/master/machinelearning/adult.py) - ([dataset](https://archive.ics.uci.edu/ml/datasets/Adult))
 - [UCI Diabetes](https://github.com/abshinn/practice/blob/master/machinelearning/diabetes.py) - ([dataset](https://archive.ics.uci.edu/ml/datasets/Diabetes+130-US+hospitals+for+years+1999-2008))
+- [UCI Combined Cycle Power Plant Output](https://github.com/abshinn/practice/blob/master/machinelearning/powerplant.py) - ([dataset](http://archive.ics.uci.edu/ml/datasets/Combined+Cycle+Power+Plant))
 - [UCI Pima Indians Diabetes](https://github.com/abshinn/practice/blob/master/machinelearning/pima.py) - ([dataset](http://archive.ics.uci.edu/ml/datasets/Pima+Indians+Diabetes))
 - [KMeans, Lloyd's Algorithm](https://github.com/abshinn/practice/blob/master/machinelearning/kmeans.py)
 - [KMeans, implemented in Spark](https://github.com/abshinn/practice/blob/master/machinelearning/sparkmeans.py)
