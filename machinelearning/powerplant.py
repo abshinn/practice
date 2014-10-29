@@ -56,7 +56,7 @@ class EnergyOutput(object):
 
         return (X, y)
 
-    def experience_curve(self, train_sizes=None, cv=5, ylim=None, scoring="mean_squared_error"):
+    def experience_curve(self, train_sizes=None, cv=5, ylim=None, scoring="r2"):
         """ Return matplotlib plt object with learning/experience curve using self.estimator. """
 
         print "params: ", self.regressor.get_params()
@@ -121,11 +121,14 @@ class EnergyOutput(object):
 
 def tree_search():
     """ Decision Tree Regressor Grid Search. """
+    seed = np.random.randint(2**16)
+    print "seed: {}".format(seed)
 
     energy = EnergyOutput(DecisionTreeRegressor())
 
-    parameters = {"max_features":(.1, .2, .3, "sqrt", "log2"),
-                  "max_depth":(8, 12, 16),
+    parameters = {"splitter":("best", "random"),
+                  "max_features":(.1, .3, .5, "sqrt", "log2"),
+                  "max_depth":(8, 12),
                   "min_samples_split":(2, 4, 8, 16),
                   "min_samples_leaf":(1, 2, 4, 6),
                  }
