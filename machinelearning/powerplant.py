@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.axes_style("darkgrid")
 
+from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import train_test_split
 # from sklearn.preprocessing import PolynomialFeatures
 
@@ -111,10 +112,33 @@ class EnergyOutput(object):
             print model
             print "\t==> Rsqr Score: {}\n".format(avg_score)
 
+    def grid_search(self, param_grid, scoring="mean_squared_error", cv=5):
+        """ Run a grid-search with self.estimator through param_grid parameter space. """
+
+        grid_rgr = GridSearchCV(self.regressor, param_grid, scoring=scoring, cv=cv, n_jobs=-1)
+        grid_rgr.fit(self.X, self.y)
+
+        print grid_rgr.best_params_
+        print grid_rgr.best_score_
+
+        self.regressor = grid_rgr.best_estimator_
+
+
+def tree_search():
+    """ Decision Tree Regressor Grid Search. """
+
+    energy = EnergyOutput(DecisionTreeRegressor())
+
+    parameters = {"max_features":(.1, .2, .3, "sqrt", "log2"),
+                  "max_depth":(8, 12, 16, 32, 64),
+                  "min_samples_split":(2, 4, 8),
+                  "min_samples_leaf":(1, 2, 3),
+                 }
+
+    energy.grid_search(parameters)
+    energy.experience_curve().show()
+
 
 if __name__ == "__main__":
-#     energy = EnergyOutput(DecisionTreeRegressor(max_depth=4))
-#     energy = EnergyOutput(LinearRegression(fit_intercept=False, normalize=False))
-    energy = EnergyOutput(Ridge(alpha=30))
-    energy.experience_curve().show()
+    tree_search()
 
