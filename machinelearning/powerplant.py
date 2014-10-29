@@ -20,7 +20,6 @@ sns.axes_style("darkgrid")
 
 from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import train_test_split
-# from sklearn.preprocessing import PolynomialFeatures
 
 from sklearn.linear_model import Ridge
 from sklearn.linear_model import LinearRegression
@@ -43,6 +42,7 @@ class EnergyOutput(object):
         self.regressor = regressor 
 
     def _prepare(self):
+        """ Download data if file not found and combine cross validation sets into one pandas DataFrame. """
 
         filename = "DATA/energy/CCPP/Folds5x2_pp.xlsx"
 
@@ -50,7 +50,6 @@ class EnergyOutput(object):
             download_data()
 
         exceldf = pd.ExcelFile(filename)
-#         dfdict = {sheet_name: exceldf.parse(sheet) for sheet in exceldf.sheet_names}
         data = pd.concat([exceldf.parse(sheet) for sheet in exceldf.sheet_names]).values
         X = data[:,:-1].astype(np.float32)
         y = data[:,-1]
@@ -113,14 +112,10 @@ class EnergyOutput(object):
             print "\t==> Rsqr Score: {}\n".format(avg_score)
 
     def grid_search(self, param_grid, scoring="mean_squared_error", cv=5):
-        """ Run a grid-search with self.estimator through param_grid parameter space. """
+        """ Run a grid search with self.regressor through param_grid parameter space. """
 
         grid_rgr = GridSearchCV(self.regressor, param_grid, scoring=scoring, cv=cv, n_jobs=-1)
         grid_rgr.fit(self.X, self.y)
-
-        print grid_rgr.best_params_
-        print grid_rgr.best_score_
-
         self.regressor = grid_rgr.best_estimator_
 
 
@@ -130,9 +125,9 @@ def tree_search():
     energy = EnergyOutput(DecisionTreeRegressor())
 
     parameters = {"max_features":(.1, .2, .3, "sqrt", "log2"),
-                  "max_depth":(8, 12, 16, 32, 64),
-                  "min_samples_split":(2, 4, 8),
-                  "min_samples_leaf":(1, 2, 3),
+                  "max_depth":(8, 12, 16),
+                  "min_samples_split":(2, 4, 8, 16),
+                  "min_samples_leaf":(1, 2, 4, 6),
                  }
 
     energy.grid_search(parameters)
