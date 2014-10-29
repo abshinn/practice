@@ -126,8 +126,7 @@ def tree_search():
 
     energy = EnergyOutput(DecisionTreeRegressor())
 
-    parameters = {"splitter":("best", "random"),
-                  "max_features":(.1, .3, .5, "sqrt", "log2"),
+    parameters = {"max_features":(.1, .3, .5, "sqrt", "log2"),
                   "max_depth":(8, 12),
                   "min_samples_split":(2, 4, 8, 16),
                   "min_samples_leaf":(1, 2, 4, 6),
