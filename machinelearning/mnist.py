@@ -50,10 +50,9 @@ def main():
     valid_set_x, valid_set_y = shared_dataset(valid_set)
     train_set_x, train_set_y = shared_dataset(train_set)
 
-    batch_size = 500    # size of the minibatch
+    batch_size = 500 # size of the minibatch
 
     # accessing the third minibatch of the training set
-
     data  = train_set_x[2 * 500: 3 * 500]
     label = train_set_y[2 * 500: 3 * 500]
 
