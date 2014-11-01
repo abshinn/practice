@@ -131,7 +131,7 @@ class PatientCluster(object):
         self.inertia = km.inertia_
 
     def cluster_importance(self, clf=DecisionTreeClassifier(), n_most_important=3):
-        """once trained, figure out the most important features for each cluster using a tree classifier"""
+        """ Show relative importance of features for each cluster using a tree classifier. """
 
         for k in xrange(self.n_clusters):
             labels = (self.labels == k)
@@ -147,7 +147,7 @@ class PatientCluster(object):
                 print self.data.loc[labels, col].describe()
 
     def print_clusters(self):
-        """print clusters"""
+        """ Describe clusters. """
 
         for k in xrange(self.n_clusters):
             print "\n      ======== cluster {} / {} ========".format(k + 1, self.n_clusters)
@@ -164,3 +164,4 @@ if __name__ == "__main__":
     pc = PatientCluster(n_clusters = 3)
     pc.train()
     pc.cluster_importance()
+
