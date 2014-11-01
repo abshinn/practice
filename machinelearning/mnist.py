@@ -15,7 +15,7 @@ def download_data():
 def load_mnist():
     """ Load and unpickle mnist data set. """
 
-    with gzip.open("mnist.pkl.gz", "rb") as f:
+    with gzip.open("DATA/mnist/mnist.pkl.gz", "rb") as f:
         train_set, valid_set, test_set = cPickle.load(f)
 
 if __name__ == "__main__":
