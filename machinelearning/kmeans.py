@@ -33,7 +33,7 @@ class KMeans(object):
             self.centroids[k,:] = X[self.label == k,:].mean(axis=0)
 
     def _has_converged(self):
-        return not np.all(self.old_label == self.label)
+        return not np.all(np.equal(self.old_label, self.label))
 
     def plot_centroids(self, p):
         """ Plot centroids for a two-dimensional feature space. """
