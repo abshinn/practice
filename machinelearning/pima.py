@@ -214,10 +214,11 @@ def forest_search():
 
 
 if __name__ == "__main__":
-    seed = np.random.randint(2**32)
+    seed = np.random.randint(2**16)
     print "seed: {}".format(seed)
 
-    estimator = RandomForestClassifier(max_features=0.3, min_samples_split=2, n_estimators=32, max_depth=3, min_samples_leaf=1, random_state=seed)
+    estimator = RandomForestClassifier(max_features=0.3, min_samples_split=2, n_estimators=32, 
+                                       max_depth=3, min_samples_leaf=1, random_state=seed)
 
     pima = Pima(estimator)
     pima.train()
