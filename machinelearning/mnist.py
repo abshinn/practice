@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7 -B -tt
 """ Employ deep learning to classify letters in the MNIST data set. """
 
+import os
 import cPickle
 import gzip
 import theano
@@ -16,6 +17,9 @@ def download_data():
 
 def load_mnist():
     """ Load and unpickle mnist data set. """
+
+    if os.path.isfile("DATA/mnist/mnist.pkl.gz") == False:
+        download_data()
 
     with gzip.open("DATA/mnist/mnist.pkl.gz", "rb") as f:
         train_set, valid_set, test_set = cPickle.load(f)
