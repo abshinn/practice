@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7 -B -tt
 """ UCI Adult Dataset (1994 Census)
-https://archive.ics.uci.edu/ml/datasets/Adult
+
+    https://archive.ics.uci.edu/ml/datasets/Adult
 
     features: 14
     examples: 48842
@@ -34,7 +35,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 def download_data():
-    """fetch data with wget"""
+    """ Fetch data with wget and clean with sed. """
 
     baseurl = "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult"
     os.system("mkdir -p DATA/adult/")
@@ -47,9 +48,8 @@ def download_data():
     os.system("cat DATA/adult/adult.all | sed 's/, /,/g' > DATA/adult/adult.tmp")
     os.system("cat DATA/adult/adult.tmp | sed 's/K\./K/g' > DATA/adult/adult.csv")
 
-
 def binarize_df(dframe):
-    """binarize a pandas series of categorical strings into a sparse dataframe"""
+    """ Binarize a pandas series of categorical strings into a sparse dataframe. """
 
     dfout = pd.DataFrame()
     for column in dframe.columns:
@@ -64,15 +64,15 @@ def binarize_df(dframe):
             print "unused column: {}".format(column)
     return dfout
 
-
 class FiftyK(object):
+    """ Classify >50K in UCI Adult 1994 Census data set. """
 
-    def __init__(self, estimator, binarize=True):
-        self.data, self.label = self.prepare(binarize=binarize)
+    def __init__(self, estimator):
+        self.data, self.label = self._prepare()
         self.estimator = estimator
 
-
-    def prepare(self, binarize=True):
+    def _prepare(self, binarize=True):
+        """ Return tuple: (data, label). """
 
         names = ["age", "workclass", "fnlwgt", "education", "education-num", "marital-status",
                  "occupation", "relationship", "race", "sex", "capital-gain", "capital-loss", 
@@ -99,11 +99,10 @@ class FiftyK(object):
 
         return data, label
 
-
     def train(self, n_examples=None):
+        """ Train classifier on data set using self.estimator. """
 
         X = self.data.values.astype(np.float32)
-
         y = self.label.values
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -116,16 +115,16 @@ class FiftyK(object):
         y_score = self.estimator.predict_proba(X_test)
         print "roc: {}".format( roc_auc_score(y_test, y_score[:,1]) )
 
-
     def cv(self, parameters, scoring="roc_auc"):
+        """ Evaluate score by cross validation. """
 
         X = self.data.values.astype(np.float)
         y = self.label.values
 
         print cross_val_score(self.estimator, X, y, scoring=scoring, cv=3)
 
-
     def grid_search(self, param_grid, scoring=None, cv=3):
+        """ Grid search over a parameter space using self.estimator and a cross-validated score. """
 
         X = self.data.values.astype(np.float)
         y = self.label.values
@@ -138,8 +137,8 @@ class FiftyK(object):
 
         self.estimator = grid_clf.best_estimator_
 
-
     def experience_curve(self, train_sizes=None, cv=3, ylim=None, scoring="roc_auc"):
+        """ Return matplotlib plt object containing the learning curve for self.estimator. """
 
         X = self.data.values.astype(np.float32)
         y = self.label.values
@@ -175,17 +174,19 @@ class FiftyK(object):
 
         return plt
 
-
     def importance(self):
-        clf = ExtraTreesClassifier()
+        """ Print relative feature importances, if self.estimator contains a feature_importances_ . """
+
+        X = self.data.values.astype(np.float32)
         y = self.label.values
-        X = self.data.values
-        clf.fit(X, y)
-        for imp, col in sorted(zip(clf.feature_importances_, self.data.columns), key = lambda (imp, col): imp, reverse=True):
+        self.estimator.fit(X, y)
+        for imp, col in sorted(zip(self.estimator.feature_importances_, self.data.columns), key = lambda (imp, col): imp, reverse=True):
             print "[{:.5f}] {}".format(imp, col)
 
 
 def tree_grid_search():
+    """ Grid search with a Decision Tree Classifer. """
+
     estimator = DecisionTreeClassifier()
     fifty = FiftyK(estimator)
 
@@ -201,9 +202,8 @@ def tree_grid_search():
     fifty.experience_curve().show()
 
 
-
 if __name__ == "__main__":
-    seed = np.random.randint(2**32)
+    seed = np.random.randint(2**16)
 
     print "seed: {}".format(seed)
     estimator = DecisionTreeClassifier(max_features=0.3, min_samples_split=4, max_depth=10, min_samples_leaf=3, random_state=seed)
