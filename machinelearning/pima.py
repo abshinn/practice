@@ -74,7 +74,6 @@ class Pima(object):
         """ Train and fit data with self.estimator and show classification report. """
 
         X = self.data.values.astype(np.float32)
-
         y = self.label.values
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
