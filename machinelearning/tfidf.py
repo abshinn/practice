@@ -5,6 +5,15 @@ Simple Implementation of Term Frequency - Inverse Document Frequency
 
 import os
 
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize, RegexpTokenizer
+
+# rg = RegexpTokenizer(r"\w+")
+rg = RegexpTokenizer(r"[a-zA-Z]+")
+stopset = stopwords.words("english")
+
+
 def download_mininewsgroups():
     """ Download data with wget and extract with tar. """
 
@@ -14,25 +23,40 @@ def download_mininewsgroups():
     os.system("tar xvf DATA/twenty_newsgroups/mini_newsgroups.tar.gz")
     os.system("mv mini_newsgroups/ DATA/twenty_newsgroups/")
 
-def prepare_newsgroups():
-    """ Turn newsgroups into a collection of documents per newsgroup. """
 
-    if os.path.isfile("DATA/twenty_newsgroups/mini_newsgroups/talk.religion.misc/84567") == False:
+def create_dictionary():
+    """ Compile dictionary for the mini newsgroups data set. """
+
+    baseurl = "DATA/twenty_newsgroups/mini_newsgroups/"
+
+    if os.path.isfile(baseurl + "talk.religion.misc/84567") == False:
         download_mininewsgroups()
 
-    newsgroups = os.listdir("DATA/twenty_newsgroups/mini_newsgroups/")
+    newsgroups = os.listdir(baseurl)
+    word_corpus = {}
 
     for newsgroup in newsgroups:
-        pass
+        dictionary = set()
+
+        threads = os.listdir("{}{}".format(baseurl, newsgroup))
+
+        for thread in threads:
+            with open("{}{}/{}".format(baseurl, newsgroup, thread), "rb") as t:
+                words = [word for word in rg.tokenize(t.read()) if word not in stopset]
+
+            dictionary = dictionary.union( set(words) )
+
+    print "dictionary length: {}".format(len(dictionary))
 
 
 class TFIDF(object):
     """ TFIDF Vectorizer. """
 
-    def __init__(self, corpus):
+    def __init__(self, corpus, dictionary):
         self.corpus = corpus
+        self.dictionary = dictionary
 
 
 if __name__ == "__main__":
-    download_mininewsgroups()
+    create_dictionary()
 
