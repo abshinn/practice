@@ -70,7 +70,7 @@ class TFIDF(object):
     def vectorize(self, corpus):
         """ Turn a corpus of documents into a numpy 2D array: rows and columns correspond to documents and words, respectively. """
 
-        tf = np.zeros((len(corpus), self.dictionary.shape[0]), dtype=int)
+        tf = np.zeros((len(corpus), self.dictionary.shape[0]), dtype=np.float32)
 
         print "size: {}".format(tf.shape)
 
@@ -81,9 +81,13 @@ class TFIDF(object):
             for word, count in document_count.items():
                 tf[document_index, np.where(self.dictionary == word)[0]] = count
 
-        print "sum: {}".format(tf.sum())
+        print "tf sum: {}".format(tf.sum())
 
-        return tf
+        tfidf = tf / tf.sum(axis=0)
+
+        print "tfidf sum: {}".format(tfidf.sum())
+
+        return tfidf
 
 
 if __name__ == "__main__":
