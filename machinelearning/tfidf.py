@@ -4,6 +4,8 @@ Simple Implementation of Term Frequency - Inverse Document Frequency
 """
 
 import os
+import numpy as np
+from collections import Counter
 
 import nltk
 from nltk.corpus import stopwords
@@ -39,24 +41,53 @@ def create_dictionary():
         dictionary = set()
 
         threads = os.listdir("{}{}".format(baseurl, newsgroup))
+        all_words = []
 
         for thread in threads:
             with open("{}{}/{}".format(baseurl, newsgroup, thread), "rb") as t:
                 words = [word for word in rg.tokenize(t.read()) if word not in stopset]
 
+            all_words.extend(words)
             dictionary = dictionary.union( set(words) )
 
+        word_corpus[newsgroup] = all_words
+
     print "dictionary length: {}".format(len(dictionary))
+
+    return word_corpus, dictionary
 
 
 class TFIDF(object):
     """ TFIDF Vectorizer. """
 
-    def __init__(self, corpus, dictionary):
-        self.corpus = corpus
-        self.dictionary = dictionary
+    def __init__(self, dictionary):
+        self.dictionary = self.index_dictionary(dictionary)
+
+    def index_dictionary(self, dictionary):
+        """ Turn word-dictionary from a set to a numpy array. """
+        return np.array(list(dictionary))
+
+    def vectorize(self, corpus):
+        """ Turn a corpus of documents into a numpy 2D array: rows and columns correspond to documents and words, respectively. """
+
+        tf = np.zeros((len(corpus), self.dictionary.shape[0]), dtype=int)
+
+        print "size: {}".format(tf.shape)
+
+        documents = sorted(corpus.keys())
+        for document_index, document in enumerate(documents):
+            document_count = Counter(corpus[document])
+
+            for word, count in document_count.items():
+                tf[document_index, np.where(self.dictionary == word)[0]] = count
+
+        print "sum: {}".format(tf.sum())
+
+        return tf
 
 
 if __name__ == "__main__":
-    create_dictionary()
+    corpus, dictionary = create_dictionary()
+    tfidf = TFIDF(dictionary)
+    tfidf.vectorize(corpus)
 
