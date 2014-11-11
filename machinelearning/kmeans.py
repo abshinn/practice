@@ -14,26 +14,26 @@ class KMeans(object):
     def _initialize_centroids(self, X):
         """ Pick random data points as inital cluster centroids. """
 
-        self.old_label, self.label = None, np.zeros(self.m)
+        self.old_label, self.labels_ = None, np.zeros(self.m)
         self.centroids = X[np.random.choice(range(self.m), self.n_clusters, replace=False),:]
 
     def _assign_data_to_centroids(self, X):
         """ Assign data points to current centroids. """
 
-        self.old_label, self.label = self.label, np.zeros(self.m)
+        self.old_label, self.labels_ = self.labels_, np.zeros(self.m)
 
         for i, example in enumerate(X):
-            self.label[i] = np.argmin( [np.linalg.norm(example - centroid) for centroid in self.centroids] )
+            self.labels_[i] = np.argmin( [np.linalg.norm(example - centroid) for centroid in self.centroids] )
 
     def _update_centroids(self, X):
         """ Update centroid positions based on current assignment. """
 
         self.centroids = np.zeros((self.n_clusters, self.n))
         for k in xrange(self.n_clusters):
-            self.centroids[k,:] = X[self.label == k,:].mean(axis=0)
+            self.centroids[k,:] = X[self.labels_ == k,:].mean(axis=0)
 
     def _has_converged(self):
-        return not np.all(np.equal(self.old_label, self.label))
+        return not np.all(np.equal(self.old_label, self.labels_))
 
     def plot_centroids(self, p):
         """ Plot centroids for a two-dimensional feature space. """
@@ -45,7 +45,7 @@ class KMeans(object):
         """ Plot residual from data point to corresponding centroid for a two-dimensional feature space. """
 
         for k, centroid in enumerate(self.centroids):
-            U = X[self.label == k,:]
+            U = X[self.labels_ == k,:]
             for u in U:
                 p.plot([u[0], centroid[0]], [u[1], centroid[1]], linewidth=2, color="black", alpha=0.1)
 
@@ -67,7 +67,7 @@ class KMeans(object):
 
     def get_labels(self):
         """ Return assigned labels. """
-        return self.label
+        return self.labels_
 
 
 
