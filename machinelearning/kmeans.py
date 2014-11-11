@@ -65,6 +65,11 @@ class KMeans(object):
             self._assign_data_to_centroids(X)
             self._update_centroids(X)
 
+    def get_labels(self):
+        """ Return assigned labels. """
+        return self.label
+
+
 
 def sample_set():
     """ Generate positively correlated non-seperable data. """
