@@ -11,7 +11,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, RegexpTokenizer
 
 # rg = RegexpTokenizer(r"\w+")
-rg = RegexpTokenizer(r"[a-zA-Z]+")
+rg = RegexpTokenizer(r"[a-zA-Z']+")
 stopset = stopwords.words("english")
 
 
@@ -44,12 +44,14 @@ def create_dictionary():
 
         for thread in threads:
             with open("{}{}/{}".format(baseurl, newsgroup, thread), "rb") as t:
-                words = [word for word in rg.tokenize(t.read()) if word not in stopset]
+                words = [word for word in rg.tokenize(t.read().lower()) if word not in stopset]
 
             all_words.extend(words)
             dictionary = dictionary.union( set(words) )
 
         word_corpus[newsgroup] = all_words
+
+    dictionary = np.array(list(dictionary))
 
     print "dictionary length: {}".format(len(dictionary))
 
@@ -60,7 +62,7 @@ class TFIDF(object):
     """ TFIDF Vectorizer. """
 
     def __init__(self, dictionary):
-        self.dictionary = self.index_dictionary(dictionary)
+        self.dictionary = dictionary
 
     def index_dictionary(self, dictionary):
         """ Turn word-dictionary from a set to a numpy array. """
@@ -87,6 +89,7 @@ class TFIDF(object):
 
         return tfidf
 
+
 def cluster_newsgroups():
     """ Cluster newsgroup categories. """
     from kmeans import KMeans
@@ -95,11 +98,19 @@ def cluster_newsgroups():
     tfidf = TFIDF(dictionary)
     newsgroups = tfidf.vectorize(corpus)
 
-    km = KMeans(n_clusters=5)
+    categories = sorted(corpus.keys())
+
+    N = 6
+    print "\n{}-Most Common Words".format(N)
+    for index, category in enumerate(categories):
+        nlargest = np.argpartition(newsgroups[index,:], -N)[-N:]
+        nlargest = nlargest[np.argsort(newsgroups[index,nlargest])][::-1]
+        print "{:>24} {}".format(category, dictionary[nlargest])
+
+    km = KMeans(n_clusters=2)
     km.fit(newsgroups)
 
-    categories = sorted(corpus.keys())
-    labels = km.get_labels()
+    labels = km.labels_
 
     for category, label, in zip(categories, labels):
         print int(label), category
