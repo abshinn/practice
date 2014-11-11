@@ -14,13 +14,13 @@ class KMeans(object):
     def _initialize_centroids(self, X):
         """ Pick random data points as inital cluster centroids. """
 
-        self.old_label, self.labels_ = None, np.zeros(self.m)
+        self.old_label, self.labels_ = None, np.zeros(self.m, dtype=int)
         self.centroids = X[np.random.choice(range(self.m), self.n_clusters, replace=False),:]
 
     def _assign_data_to_centroids(self, X):
         """ Assign data points to current centroids. """
 
-        self.old_label, self.labels_ = self.labels_, np.zeros(self.m)
+        self.old_label, self.labels_ = self.labels_, np.zeros(self.m, dtype=int)
 
         for i, example in enumerate(X):
             self.labels_[i] = np.argmin( [np.linalg.norm(example - centroid) for centroid in self.centroids] )
@@ -34,6 +34,14 @@ class KMeans(object):
 
     def _has_converged(self):
         return not np.all(np.equal(self.old_label, self.labels_))
+
+    def _sum_residuals(self, X):
+        """ Sum all residuals with current centroid assignments. """
+
+        centroids = self.centroids[self.labels_]
+        residuals = X - centroids
+
+        return np.linalg.norm(residuals, axis=1).sum()
 
     def plot_centroids(self, p):
         """ Plot centroids for a two-dimensional feature space. """
@@ -65,6 +73,9 @@ class KMeans(object):
             self._update_centroids(X)
 
         print "KMeans iterations: {}".format(iter+1)
+
+        self.inertia_ = self._sum_residuals(X)
+        print "inertia: {:.3f}".format(self.inertia_)
 
     def get_labels(self):
         """ Return assigned labels. """
