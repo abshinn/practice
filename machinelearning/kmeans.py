@@ -60,10 +60,11 @@ class KMeans(object):
 
         iter = 0
         while self._has_converged(): 
-            print "iter: {}".format(iter)
             iter += 1
             self._assign_data_to_centroids(X)
             self._update_centroids(X)
+
+        print "KMeans iterations: {}".format(iter+1)
 
     def get_labels(self):
         """ Return assigned labels. """
