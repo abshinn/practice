@@ -11,7 +11,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, RegexpTokenizer
 
 # rg = RegexpTokenizer(r"\w+")
-rg = RegexpTokenizer(r"[a-zA-Z']+")
+rg = RegexpTokenizer(r"[a-zA-Z']{3,}")
 stopset = stopwords.words("english")
 
 
@@ -44,7 +44,7 @@ def create_dictionary():
 
         for thread in threads:
             with open("{}{}/{}".format(baseurl, newsgroup, thread), "rb") as t:
-                words = [word for word in rg.tokenize(t.read().lower()) if word not in stopset]
+                words = [word.lower() for word in rg.tokenize(t.read()) if word not in stopset]
 
             all_words.extend(words)
             dictionary = dictionary.union( set(words) )
@@ -106,12 +106,15 @@ def cluster_newsgroups():
         nlargest = np.argpartition(newsgroups[index,:], -N)[-N:]
         nlargest = nlargest[np.argsort(newsgroups[index,nlargest])][::-1]
         print "{:>24} {}".format(category, dictionary[nlargest])
+    print
 
-    km = KMeans(n_clusters=2)
+    K = 2
+    km = KMeans(n_clusters=K)
     km.fit(newsgroups)
 
     labels = km.labels_
 
+    print "\nKMeans Label Assignment, K = {}".format(K)
     for category, label, in zip(categories, labels):
         print int(label), category
 
