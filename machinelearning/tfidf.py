@@ -81,17 +81,31 @@ class TFIDF(object):
             for word, count in document_count.items():
                 tf[document_index, np.where(self.dictionary == word)[0]] = count
 
-        print "tf sum: {}".format(tf.sum())
-
         tfidf = tf / tf.sum(axis=0)
 
+        print "tf sum: {}".format(tf.sum())
         print "tfidf sum: {}".format(tfidf.sum())
 
         return tfidf
 
+def cluster_newsgroups():
+    """ Cluster newsgroup categories. """
+    from kmeans import KMeans
 
-if __name__ == "__main__":
     corpus, dictionary = create_dictionary()
     tfidf = TFIDF(dictionary)
-    tfidf.vectorize(corpus)
+    newsgroups = tfidf.vectorize(corpus)
+
+    km = KMeans(n_clusters=5)
+    km.fit(newsgroups)
+
+    categories = sorted(corpus.keys())
+    labels = km.get_labels()
+
+    for category, label, in zip(categories, labels):
+        print int(label), category
+
+
+if __name__ == "__main__":
+    cluster_newsgroups()
 
