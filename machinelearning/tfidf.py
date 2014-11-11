@@ -7,7 +7,6 @@ import os
 import numpy as np
 from collections import Counter
 
-import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, RegexpTokenizer
 
