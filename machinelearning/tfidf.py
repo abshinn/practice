@@ -11,7 +11,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, RegexpTokenizer
 
 # rg = RegexpTokenizer(r"\w+")
-rg = RegexpTokenizer(r"[a-zA-Z']{3,}")
+rg = RegexpTokenizer(r"[a-zA-Z]{3,}")
 stopset = stopwords.words("english")
 
 
