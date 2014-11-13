@@ -10,7 +10,6 @@ from collections import Counter
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, RegexpTokenizer
 
-# rg = RegexpTokenizer(r"\w+")
 rg = RegexpTokenizer(r"[a-zA-Z]{3,}")
 stopset = stopwords.words("english")
 
@@ -71,18 +70,28 @@ class TFIDF(object):
     def vectorize(self, corpus):
         """ Turn a corpus of documents into a numpy 2D array: rows and columns correspond to documents and words, respectively. """
 
-        tf = np.zeros((len(corpus), self.dictionary.shape[0]), dtype=np.float32)
+        term_count = np.zeros((len(corpus), self.dictionary.shape[0]), dtype=np.float32)
 
-        print "size: {}".format(tf.shape)
+        print "size: {}".format(term_count.shape)
 
         documents = sorted(corpus.keys())
         for document_index, document in enumerate(documents):
             document_count = Counter(corpus[document])
 
             for word, count in document_count.items():
-                tf[document_index, np.where(self.dictionary == word)[0]] = count
+                term_count[document_index, np.where(self.dictionary == word)[0]] = count
 
-        tfidf = tf / tf.sum(axis=0)
+        tf = term_count / term_count.max(axis=0) 
+
+        N = len(corpus)
+        n = (term_count > 0).sum(axis=0).astype(np.float32)
+
+        idf = np.log( N / n )
+
+        assert idf.dtype == np.float32
+        assert idf.shape == (self.dictionary.shape[0],)
+
+        tfidf = tf * idf
 
         print "tf sum: {}".format(tf.sum())
         print "tfidf sum: {}".format(tfidf.sum())
