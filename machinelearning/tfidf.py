@@ -102,6 +102,7 @@ class TFIDF(object):
 def cluster_newsgroups():
     """ Cluster newsgroup categories. """
     from kmeans import KMeans
+    from similarity import simMatrix
 
     corpus, dictionary = create_dictionary()
     tfidf = TFIDF(dictionary)
@@ -127,6 +128,7 @@ def cluster_newsgroups():
     for category, label, in zip(categories, labels):
         print int(label), category
 
+    simMatrix(newsgroups).plot().show()
 
 if __name__ == "__main__":
     cluster_newsgroups()
