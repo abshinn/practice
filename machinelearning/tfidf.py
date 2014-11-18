@@ -4,13 +4,15 @@ Simple Implementation of Term Frequency - Inverse Document Frequency
 """
 
 import os
-import numpy as np
 from collections import Counter
+
+import numpy as np
+np.set_printoptions(linewidth=100)
 
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, RegexpTokenizer
 
-rg = RegexpTokenizer(r"[a-zA-Z]{3,}")
+rg = RegexpTokenizer(r"(?u)\b\w\w+\b")
 stopset = stopwords.words("english")
 
 
@@ -24,7 +26,7 @@ def download_mininewsgroups():
     os.system("mv mini_newsgroups/ DATA/twenty_newsgroups/")
 
 
-def create_dictionary():
+def create_dictionary(bigram=False):
     """ Compile dictionary for the mini newsgroups data set. """
 
     baseurl = "DATA/twenty_newsgroups/mini_newsgroups/"
@@ -43,9 +45,18 @@ def create_dictionary():
 
         for thread in threads:
             with open("{}{}/{}".format(baseurl, newsgroup, thread), "rb") as t:
-                words = [word.lower() for word in rg.tokenize(t.read()) if word not in stopset]
+                words = [word for word in rg.tokenize(t.read().lower()) if word not in stopset]
+              
+            if bigram:
 
+                bigrams = []
+                for i in xrange(len(words)-1):
+                    bigrams.append( " ".join(words[i:i+2]) )
+
+                words.extend(bigrams)
+           
             all_words.extend(words)
+
             dictionary = dictionary.union( set(words) )
 
         word_corpus[newsgroup] = all_words
@@ -93,9 +104,6 @@ class TFIDF(object):
 
         tfidf = tf * idf
 
-        print "tf sum: {}".format(tf.sum())
-        print "tfidf sum: {}".format(tfidf.sum())
-
         return tfidf
 
 
@@ -104,7 +112,7 @@ def cluster_newsgroups():
     from kmeans import KMeans
     from similarity import simMatrix
 
-    corpus, dictionary = create_dictionary()
+    corpus, dictionary = create_dictionary(bigram=True)
     tfidf = TFIDF(dictionary)
     newsgroups = tfidf.vectorize(corpus)
 
@@ -118,7 +126,7 @@ def cluster_newsgroups():
         print "{:>24} {}".format(category, dictionary[nlargest])
     print
 
-    K = 2
+    K = 3
     km = KMeans(n_clusters=K)
     km.fit(newsgroups)
 
