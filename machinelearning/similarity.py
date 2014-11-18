@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.7 -B -tt
 """ Module for calculating and visualizing similarity. """
 
 import numpy as np
