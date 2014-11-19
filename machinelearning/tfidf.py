@@ -1,10 +1,11 @@
 #!/usr/bin/env python2.7 -B -tt
 """
-Simple Implementation of Term Frequency - Inverse Document Frequency
+Simple Implementation of TFIDF, Term Frequency - Inverse Document Frequency
 """
 
 import os
 from collections import Counter
+NoneType = type(None)
 
 import numpy as np
 np.set_printoptions(linewidth=100)
@@ -26,7 +27,7 @@ def download_mininewsgroups():
     os.system("mv mini_newsgroups/ DATA/twenty_newsgroups/")
 
 
-def create_dictionary(bigram=False):
+def build_dictionary(bigram=False):
     """ Compile dictionary for the mini newsgroups data set. """
 
     baseurl = "DATA/twenty_newsgroups/mini_newsgroups/"
@@ -56,12 +57,9 @@ def create_dictionary(bigram=False):
                 words.extend(bigrams)
            
             all_words.extend(words)
-
             dictionary = dictionary.union( set(words) )
 
         word_corpus[newsgroup] = all_words
-
-    dictionary = np.array(list(dictionary))
 
     print "dictionary length: {}".format(len(dictionary))
 
@@ -71,15 +69,27 @@ def create_dictionary(bigram=False):
 class TFIDF(object):
     """ TFIDF Vectorizer. """
 
-    def __init__(self, dictionary):
-        self.dictionary = dictionary
+    def __init__(self, dictionary=None):
+        self.dictionary = self.index_dictionary(dictionary)
 
     def index_dictionary(self, dictionary):
-        """ Turn word-dictionary from a set to a numpy array. """
-        return np.array(list(dictionary))
+        """ Make sure dictionary is a numpy array if not None. """
 
-    def vectorize(self, corpus):
+        if isinstance(dictionary, np.ndarray) or type(dictionary) == NoneType:
+            return dictionary
+        elif isinstance(dictionary, set):
+            return np.array(list(dictionary))
+        elif isinstance(dictionary, list) or isinstance(dictionary, tuple):
+            return np.array(dictionary)
+        else:
+            raise Exception("dictionary cannot be of type '{}'".format(type(dictionary)))
+
+    def vectorize(self, corpus=None):
         """ Turn a corpus of documents into a numpy 2D array: rows and columns correspond to documents and words, respectively. """
+
+        if type(self.dictionary) == NoneType or type(corpus) == NoneType:
+            corpus, dictionary = build_dictionary()
+            self.dictionary = self.index_dictionary(dictionary)
 
         term_count = np.zeros((len(corpus), self.dictionary.shape[0]), dtype=np.float32)
 
@@ -109,12 +119,14 @@ class TFIDF(object):
 
 def cluster_newsgroups():
     """ Cluster newsgroup categories. """
+
     from kmeans import KMeans
     from similarity import simMatrix
 
-    corpus, dictionary = create_dictionary(bigram=True)
+    corpus, dictionary = build_dictionary(bigram=True)
     tfidf = TFIDF(dictionary)
     newsgroups = tfidf.vectorize(corpus)
+    dictionary = tfidf.dictionary
 
     categories = sorted(corpus.keys())
 
