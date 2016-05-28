@@ -1,6 +1,5 @@
 *.log
 *.py[co]
-*.ipynb*
 *.sw[po]
-takehome/
+*.ipynb_checkpoints/
 machinelearning/DATA/
